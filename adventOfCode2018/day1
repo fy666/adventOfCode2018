@@ -1,0 +1,13 @@
+#!/bin/bash
+echo bonjour
+FILE=data_day1.txt
+count=0
+index=0
+while read LINE; do
+    ARRAY[$index]=count
+    count=$(($count+$LINE)) #$LINE
+    index=$(($index+1))
+
+    #echo "$count"
+    echo -e "+ $LINE = $count"
+done < $FILE
