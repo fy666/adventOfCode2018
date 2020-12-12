@@ -1,5 +1,4 @@
 use std::fs;
-use std::cmp;
 
 fn linear_to_mat(position: usize, width: usize) -> (usize,usize){
     let line : usize = position/width; // FLOOR VALUE !
@@ -11,22 +10,6 @@ fn mat_to_linear(mat: (usize,usize), width:usize) -> usize{
     (mat.0*width)+mat.1
 }
 
-// fn get_adjacent(position: usize, width: usize, max_pos: usize) -> Vec<usize>{
-//     let mut res : Vec<usize> = Vec::new();
-//     let mat_pos = linear_to_mat(position, width);
-
-//     for i in (mat_pos.0 as isize -1)..(mat_pos.0+2) as isize{
-//         for j in (mat_pos.1 as isize-1)..(mat_pos.1+2) as isize{
-//             if i >= 0 && j >= 0 && j < width as isize {
-//                 let var = mat_to_linear((i as usize,j as usize), width);
-//                 if var != position && var < max_pos{
-//                     res.push(var);
-//                 }
-//             }
-//         }
-//     }
-//     res
-// }
 
 fn nice_print(init: &Vec<char>, width:usize){
     for (ix,seat) in init.iter().enumerate(){
@@ -37,47 +20,6 @@ fn nice_print(init: &Vec<char>, width:usize){
     }
     print!("\n");
 }
-
-// fn apply_p1(init: &Vec<char>, width:usize, rule: i32) -> Vec<char> {
-//     let mut result : Vec<char> = Vec::new();
-//     for (ix,seat) in init.iter().enumerate(){
-//         //println!("Position {}, seat {}", ix,seat);
-//         if *seat == '.'{
-//             result.push('.');
-//             continue;
-//         }
-//         let adjacents = get_adjacent(ix, width, init.len());
-//         if *seat == 'L'{
-//             let mut all_free = true;
-//             for i in adjacents{
-//                 if init[i] == '#'{
-//                     all_free = false;
-//                     break;
-//                 }
-//             }
-//             if all_free{
-//                 result.push('#');
-//             }else{
-//                 result.push('L');
-//             }
-//         }
-//         else if *seat == '#'{
-//             let mut count = 0;
-//             for i in adjacents{
-//                 if init[i] == '#'{
-//                     count += 1;
-//                 }
-//             }
-//             if count >= rule {
-//                 result.push('L');
-//             }else{
-//                 result.push('#');
-//             }
-//         }
-//     }
-//     result
-// }
-
 
 fn puzzle1(mut seats: Vec<char>, width:usize){
     let mut run = apply_rule(&seats, width, 4, true);
@@ -109,20 +51,13 @@ fn apply_rule(seats: &Vec<char>, width:usize, rule: i32, first: bool) -> Vec<cha
         }
 
         let occupied_seats = adjacents_seats.iter().filter(|x| **x == '#').count();
-        
-        if *seat == 'L'{
-            if occupied_seats == 0{
-                result.push('#');
-            }else{
-                result.push('L');
-            }
-        }
-        else if *seat == '#'{
-            if occupied_seats >= rule as usize {
-                result.push('L');
-            }else{
-                result.push('#');
-            }
+
+        if occupied_seats == 0 {
+            result.push('#');
+        } else if occupied_seats >= rule as usize {
+            result.push('L');
+        }  else{
+            result.push(*seat);
         }
     }
     result
