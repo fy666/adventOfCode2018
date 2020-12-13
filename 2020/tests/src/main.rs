@@ -17,6 +17,7 @@ fn build_user(name: String) -> User{
     }
 }
 
+
 fn main() {
     println!("Hello, world!");
     let s = String::from("Coucou");
