@@ -91,6 +91,7 @@ fn puzzle2(input: &Vec<&str>, rules: &HashMap<usize, Vec<String>>) {
     for r1 in rule_42 {
         r42_str += &format!("{}|", r1);
     }
+    //println!("{:?}", rule_42);
     r42_str.pop();
     let mut r31_str = String::new();
     for r2 in rule_31 {
@@ -104,7 +105,7 @@ fn puzzle2(input: &Vec<&str>, rules: &HashMap<usize, Vec<String>>) {
         if new_reg.is_match(&i) {
             let g1 = new_reg.captures(&i).unwrap().get(1).unwrap().end();
             let num_g1 = g1 / rule_42[0].len();
-            let num_g2 = (i.len() - g1) / rule_42[0].len();
+            let num_g2 = (i.len() - g1) / rule_31[0].len();
             if num_g2 < num_g1 {
                 count += 1;
             }
