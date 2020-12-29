@@ -1,0 +1,19 @@
+[package]
+name = "aoc_2015"
+version = "0.1.0"
+authors = ["Florence Yernaux <florence.yernaux@ulb.ac.be>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+md5 = "0.7.0"
+onig = "6"
+env_logger = "0.8.2"
+log = "0.4.11"
+snailquote = "0.3.0"
+itertools = "0.10.0"
+num = "0.3.1"
+serde_json = "1.0.61"
+ndarray = "0.14.0"
+rand = "0.8.3"
