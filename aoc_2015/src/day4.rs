@@ -21,5 +21,5 @@ pub fn run() {
         }
         puzzle2 += 1;
     }
-    println!("Puzzle 1: {}, Puzzle 2: {}", puzzle1, puzzle2);
+    log::info!("Puzzle 1: 🔑 {}, Puzzle 2: 🔑 {}", puzzle1, puzzle2);
 }

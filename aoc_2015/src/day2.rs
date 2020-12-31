@@ -35,14 +35,19 @@ impl Gift {
 pub fn run(file: &String) {
     let text = fs::read_to_string(file).expect("File not found");
     let data: Vec<&str> = text.trim().split("\n").collect();
-    println!("Imported {} 🎁", data.len());
+    log::debug!("Imported {} 🎁", data.len());
     let mut needed_area = 0;
     let mut needed_ribbon = 0;
     for gift in data {
         let g = Gift::new(gift);
-        // println!("{:?} area = {}", g, g.get_area());
+        log::trace!(
+            "{:?} area = {}, ribbon = {}",
+            g,
+            g.get_area(),
+            g.get_ribbon()
+        );
         needed_area += g.get_area();
         needed_ribbon += g.get_ribbon();
     }
-    println!("Needed paper {}, needed 🎀 {} ", needed_area, needed_ribbon);
+    log::info!("Needed paper {}, needed 🎀 {} ", needed_area, needed_ribbon);
 }
