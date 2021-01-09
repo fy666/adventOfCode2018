@@ -24,7 +24,7 @@ fn is_nice_p1(txt: &str) -> bool {
 }
 
 fn is_nice_p2(txt: &str) -> bool {
-    let regex_double = Regex::new(r".*([a-z]{2}).*\1.*").unwrap();
+    let regex_double = Regex::new(r"([a-z])\1").unwrap();
     let mut is_nice: bool = regex_double.is_match(txt);
     if !is_nice {
         log::trace!("{} doesnt contain 2 letters that repeats", txt);
