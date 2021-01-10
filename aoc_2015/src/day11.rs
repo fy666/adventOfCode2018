@@ -1,5 +1,4 @@
 use num::bigint::BigUint;
-use num::traits::Num;
 use onig::Regex;
 use std::collections::HashSet;
 
