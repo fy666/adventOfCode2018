@@ -1,68 +1,74 @@
-use itertools::Itertools;
+//use itertools::Itertools;
 use onig::Regex;
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::fs;
 
-fn get_ordered_tup<'a>(a: &'a str, b: &'a str) -> (&'a str, &'a str) {
-    if a > b {
-        return (a, b);
-    }
-    (b, a)
+fn get_mfcsam() -> HashMap<String, i32> {
+    let mut message = HashMap::new();
+    message.insert("children".to_string(), 3);
+    message.insert("cats".to_string(), 7);
+    message.insert("samoyeds".to_string(), 2);
+    message.insert("pomeranians".to_string(), 3);
+    message.insert("akitas".to_string(), 0);
+    message.insert("vizslas".to_string(), 0);
+    message.insert("goldfish".to_string(), 5);
+    message.insert("trees".to_string(), 3);
+    message.insert("cars".to_string(), 2);
+    message.insert("perfumes".to_string(), 1);
+    message
 }
 
-fn compute_hapiness(sitting: &Vec<&str>, wishes: &HashMap<(&str, &str), i32>) -> i32 {
-    let mut d = 0;
-    for w in sitting.windows(2) {
-        let tup = get_ordered_tup(w[0], w[1]);
-        d += wishes.get(&tup).unwrap_or(&0);
+fn compare_data(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
+    for (key, value) in mfcsam.iter() {
+        if aunt.contains_key(key.as_str()) {
+            if value != aunt.get(key.as_str()).unwrap() {
+                return false;
+            }
+        }
     }
-    let tup = get_ordered_tup(*sitting.last().unwrap(), *sitting.first().unwrap());
-    d += wishes.get(&tup).unwrap_or(&0);
-    d
+    true
+}
+
+fn compare_data_real(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
+    for (key, value) in mfcsam.iter() {
+        if aunt.contains_key(key.as_str()) {
+            let aunt_value = aunt.get(key.as_str()).unwrap();
+            let ok = match key.as_str() {
+                "cats" | "trees" => aunt_value > value,
+                "pomeranians" | "goldfish" => aunt_value < value,
+                _ => aunt_value == value,
+            };
+            if !ok {
+                return false;
+            }
+        }
+    }
+    true
 }
 
 pub fn run(file: &String) {
     let text = fs::read_to_string(file).expect("File not found");
     let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} guest wishes 🍽️", data.len());
-    let mut whishes: HashMap<_, i32> = HashMap::new();
-    let mut guests: HashSet<_> = HashSet::new();
-    let regex = Regex::new(r"(.*) would (gain|lose) (.*) happiness units by sitting next to (.*).")
-        .unwrap();
-    for whish in data {
-        let capture = regex.captures(whish).unwrap();
-        let guest1 = capture.at(1).unwrap();
-        let guest2 = capture.at(4).unwrap();
-        let mut hapiness_unit: i32 = capture.at(3).unwrap().parse().unwrap();
-        if capture.at(2).unwrap() == "lose" {
-            hapiness_unit = -hapiness_unit;
-        }
-        let tup = get_ordered_tup(guest1, guest2);
-        *whishes.entry(tup).or_insert(0) += hapiness_unit;
-        guests.insert(guest1);
-        guests.insert(guest2);
-    }
-    log::trace!("Guest wishes = {:?}", whishes);
-    log::trace!("Guest list = {:?}", guests);
+    log::debug!("Imported {} aunts Sue", data.len());
 
-    let mut sitting: Vec<&str> = guests.into_iter().collect();
-    let mut max_happy = 0;
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
-        }
-    }
-    log::info!("🍽️  max hapiness = {}", max_happy);
+    let mfcsam = get_mfcsam();
+    log::trace!("MFCSAM {:?}", mfcsam);
 
-    max_happy = 0;
-    sitting.push("Florence");
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
+    let regex = Regex::new(r" ([a-z]*): (\d*)").unwrap();
+    let mut num_aunt = 1;
+    for aunt in data {
+        let mut items: HashMap<_, i32> = HashMap::new();
+        for caps in regex.captures_iter(aunt) {
+            items.insert(caps.at(1).unwrap(), caps.at(2).unwrap().parse().unwrap());
         }
+        if compare_data(&mfcsam, &items) {
+            log::info!("Aunt Sue 👵 {} has given the MFCSAM 🕵️", num_aunt);
+            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
+        }
+        if compare_data_real(&mfcsam, &items) {
+            log::info!("‍Real Aunt Sue 🤦 {} has given the MFCSAM 🕵️", num_aunt);
+            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
+        }
+        num_aunt += 1;
     }
-    log::info!("🍽️  max hapiness with Florence 🥰 at table = {}", max_happy);
 }
