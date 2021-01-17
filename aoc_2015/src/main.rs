@@ -53,7 +53,7 @@ fn main() {
         "14" => day14::run(&get_path(test_mode, 14), test_mode),
         "15" => day15::run(&get_path(test_mode, 15)),
         "16" => day16::run(&get_path(test_mode, 16)),
-        "17" => day17::run(&get_path(test_mode, 17)),
+        "17" => day17::run(&get_path(test_mode, 17), test_mode),
         "18" => day18::run(&get_path(test_mode, 18)),
         "19" => day19::run(&get_path(test_mode, 19)),
         "20" => day20::run(&get_path(test_mode, 20)),
@@ -74,7 +74,7 @@ fn main() {
             day14::run(&get_path(test_mode, 14), test_mode);
             day15::run(&get_path(test_mode, 15));
             day16::run(&get_path(test_mode, 16));
-            day17::run(&get_path(test_mode, 17));
+            day17::run(&get_path(test_mode, 17), test_mode);
             day18::run(&get_path(test_mode, 18));
             day19::run(&get_path(test_mode, 19));
             day20::run(&get_path(test_mode, 20));

@@ -1,68 +1,36 @@
 use itertools::Itertools;
-use onig::Regex;
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::cmp::min;
 use std::fs;
 
-fn get_ordered_tup<'a>(a: &'a str, b: &'a str) -> (&'a str, &'a str) {
-    if a > b {
-        return (a, b);
-    }
-    (b, a)
-}
-
-fn compute_hapiness(sitting: &Vec<&str>, wishes: &HashMap<(&str, &str), i32>) -> i32 {
-    let mut d = 0;
-    for w in sitting.windows(2) {
-        let tup = get_ordered_tup(w[0], w[1]);
-        d += wishes.get(&tup).unwrap_or(&0);
-    }
-    let tup = get_ordered_tup(*sitting.last().unwrap(), *sitting.first().unwrap());
-    d += wishes.get(&tup).unwrap_or(&0);
-    d
-}
-
-pub fn run(file: &String) {
+pub fn run(file: &String, test: bool) {
     let text = fs::read_to_string(file).expect("File not found");
-    let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} guest wishes 🍽️", data.len());
-    let mut whishes: HashMap<_, i32> = HashMap::new();
-    let mut guests: HashSet<_> = HashSet::new();
-    let regex = Regex::new(r"(.*) would (gain|lose) (.*) happiness units by sitting next to (.*).")
-        .unwrap();
-    for whish in data {
-        let capture = regex.captures(whish).unwrap();
-        let guest1 = capture.at(1).unwrap();
-        let guest2 = capture.at(4).unwrap();
-        let mut hapiness_unit: i32 = capture.at(3).unwrap().parse().unwrap();
-        if capture.at(2).unwrap() == "lose" {
-            hapiness_unit = -hapiness_unit;
-        }
-        let tup = get_ordered_tup(guest1, guest2);
-        *whishes.entry(tup).or_insert(0) += hapiness_unit;
-        guests.insert(guest1);
-        guests.insert(guest2);
+    let data: Vec<i32> = text
+        .trim()
+        .split("\n")
+        .map(|x| x.parse().unwrap())
+        .collect();
+    log::debug!("Imported {} cups 🥤", data.len());
+    log::trace!("Cups list {:?}", data);
+    let mut goal = 150;
+    if test {
+        goal = 25;
     }
-    log::trace!("Guest wishes = {:?}", whishes);
-    log::trace!("Guest list = {:?}", guests);
 
-    let mut sitting: Vec<&str> = guests.into_iter().collect();
-    let mut max_happy = 0;
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
+    let mut valid_combinations = 0;
+    let mut min_size = data.len();
+    for num_cups in 1..data.len() {
+        for combi in data.iter().copied().combinations(num_cups) {
+            let loc_sum = combi.iter().sum::<i32>();
+            if loc_sum == goal {
+                valid_combinations += 1;
+                min_size = min(min_size, combi.len());
+            }
         }
     }
-    log::info!("🍽️  max hapiness = {}", max_happy);
-
-    max_happy = 0;
-    sitting.push("Florence");
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
-        }
-    }
-    log::info!("🍽️  max hapiness with Florence 🥰 at table = {}", max_happy);
+    log::info!(
+        "{} combinations of 🥤 could hold {}L of eggnog, min number of 🥤 required = {}",
+        valid_combinations,
+        goal,
+        min_size
+    );
 }
