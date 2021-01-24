@@ -1,68 +1,70 @@
-use itertools::Itertools;
-use onig::Regex;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::fs;
-
-fn get_ordered_tup<'a>(a: &'a str, b: &'a str) -> (&'a str, &'a str) {
-    if a > b {
-        return (a, b);
+fn get_presents(input: i32) -> i32 {
+    let mut presents = 0;
+    let sqrt = (input as f64).sqrt() as i32;
+    for i in 1..sqrt + 1 {
+        if input.rem_euclid(i) == 0 {
+            presents += i * 10;
+            if (input / i) != i {
+                presents += (input / i) * 10;
+            }
+        }
     }
-    (b, a)
+    presents
 }
 
-fn compute_hapiness(sitting: &Vec<&str>, wishes: &HashMap<(&str, &str), i32>) -> i32 {
-    let mut d = 0;
-    for w in sitting.windows(2) {
-        let tup = get_ordered_tup(w[0], w[1]);
-        d += wishes.get(&tup).unwrap_or(&0);
+fn get_lazy_presents(input: i32) -> i32 {
+    let mut presents = 0;
+    let sqrt = (input as f64).sqrt() as i32;
+    for i in 1..sqrt + 1 {
+        if input.rem_euclid(i) == 0 {
+            let div = input / i;
+            if div <= 50 {
+                presents += i * 11;
+            }
+            if div != i && i <= 50 {
+                presents += div * 11;
+            }
+        }
     }
-    let tup = get_ordered_tup(*sitting.last().unwrap(), *sitting.first().unwrap());
-    d += wishes.get(&tup).unwrap_or(&0);
-    d
+    presents
 }
 
-pub fn run(file: &String) {
-    let text = fs::read_to_string(file).expect("File not found");
-    let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} guest wishes 🍽️", data.len());
-    let mut whishes: HashMap<_, i32> = HashMap::new();
-    let mut guests: HashSet<_> = HashSet::new();
-    let regex = Regex::new(r"(.*) would (gain|lose) (.*) happiness units by sitting next to (.*).")
-        .unwrap();
-    for whish in data {
-        let capture = regex.captures(whish).unwrap();
-        let guest1 = capture.at(1).unwrap();
-        let guest2 = capture.at(4).unwrap();
-        let mut hapiness_unit: i32 = capture.at(3).unwrap().parse().unwrap();
-        if capture.at(2).unwrap() == "lose" {
-            hapiness_unit = -hapiness_unit;
+pub fn run(test: bool) {
+    if test {
+        for h in 1..10 {
+            log::debug!("House {} got {} presents", h, get_presents(h));
         }
-        let tup = get_ordered_tup(guest1, guest2);
-        *whishes.entry(tup).or_insert(0) += hapiness_unit;
-        guests.insert(guest1);
-        guests.insert(guest2);
-    }
-    log::trace!("Guest wishes = {:?}", whishes);
-    log::trace!("Guest list = {:?}", guests);
-
-    let mut sitting: Vec<&str> = guests.into_iter().collect();
-    let mut max_happy = 0;
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
+        for h in 1..10 {
+            log::debug!(
+                "House {} got {} presents (lazy elves)",
+                h,
+                get_lazy_presents(h)
+            );
         }
-    }
-    log::info!("🍽️  max hapiness = {}", max_happy);
-
-    max_happy = 0;
-    sitting.push("Florence");
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
+    } else {
+        let lowest_gifts = 29000000;
+        let mut lowest_house = 10;
+        let mut gifts = get_presents(lowest_house);
+        while gifts < lowest_gifts {
+            lowest_house += 1;
+            gifts = get_presents(lowest_house);
         }
+        log::info!(
+            "After 🧝 distribution, 🏠 {} has {} 🎁",
+            lowest_house,
+            get_presents(lowest_house)
+        );
+        // Part 2
+        lowest_house = 10;
+        gifts = get_lazy_presents(lowest_house);
+        while gifts < lowest_gifts {
+            lowest_house += 1;
+            gifts = get_lazy_presents(lowest_house);
+        }
+        log::info!(
+            "After lazy 🧝 distribution, 🏠 {} has {} 🎁",
+            lowest_house,
+            get_presents(lowest_house)
+        );
     }
-    log::info!("🍽️  max hapiness with Florence 🥰 at table = {}", max_happy);
 }

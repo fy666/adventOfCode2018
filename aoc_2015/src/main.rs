@@ -13,6 +13,11 @@ mod day18;
 mod day19;
 mod day2;
 mod day20;
+mod day21;
+mod day22;
+mod day23;
+mod day24;
+mod day25;
 mod day3;
 mod day4;
 mod day5;
@@ -56,7 +61,12 @@ fn main() {
         "17" => day17::run(&get_path(test_mode, 17), test_mode),
         "18" => day18::run(&get_path(test_mode, 18)),
         "19" => day19::run(&get_path(test_mode, 19)),
-        "20" => day20::run(&get_path(test_mode, 20)),
+        "20" => day20::run(test_mode),
+        "21" => day21::run(test_mode),
+        "22" => day22::run(test_mode),
+        "23" => day23::run(&get_path(test_mode, 23)),
+        "24" => day24::run(&get_path(test_mode, 24)),
+        "25" => day25::run(&get_path(test_mode, 25)),
         "all" => {
             day1::run(&get_path(test_mode, 1));
             day2::run(&get_path(test_mode, 2));
@@ -77,7 +87,12 @@ fn main() {
             day17::run(&get_path(test_mode, 17), test_mode);
             day18::run(&get_path(test_mode, 18));
             day19::run(&get_path(test_mode, 19));
-            day20::run(&get_path(test_mode, 20));
+            day20::run(test_mode);
+            day21::run(test_mode);
+            day22::run(test_mode);
+            day23::run(&get_path(test_mode, 23));
+            day24::run(&get_path(test_mode, 24));
+            day25::run(&get_path(test_mode, 25));
         }
         _ => log::warn!("Day {} not found", day),
     }
