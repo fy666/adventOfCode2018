@@ -66,7 +66,7 @@ fn main() {
         "22" => day22::run(test_mode),
         "23" => day23::run(&get_path(test_mode, 23)),
         "24" => day24::run(&get_path(test_mode, 24)),
-        "25" => day25::run(&get_path(test_mode, 25)),
+        "25" => day25::run(test_mode),
         "all" => {
             day1::run(&get_path(test_mode, 1));
             day2::run(&get_path(test_mode, 2));
@@ -92,7 +92,7 @@ fn main() {
             day22::run(test_mode);
             day23::run(&get_path(test_mode, 23));
             day24::run(&get_path(test_mode, 24));
-            day25::run(&get_path(test_mode, 25));
+            day25::run(test_mode);
         }
         _ => log::warn!("Day {} not found", day),
     }

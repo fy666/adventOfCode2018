@@ -1,74 +1,61 @@
-//use itertools::Itertools;
-use onig::Regex;
-use std::collections::HashMap;
 use std::fs;
 
-fn get_mfcsam() -> HashMap<String, i32> {
-    let mut message = HashMap::new();
-    message.insert("children".to_string(), 3);
-    message.insert("cats".to_string(), 7);
-    message.insert("samoyeds".to_string(), 2);
-    message.insert("pomeranians".to_string(), 3);
-    message.insert("akitas".to_string(), 0);
-    message.insert("vizslas".to_string(), 0);
-    message.insert("goldfish".to_string(), 5);
-    message.insert("trees".to_string(), 3);
-    message.insert("cars".to_string(), 2);
-    message.insert("perfumes".to_string(), 1);
-    message
+fn apply_instr(reg: &mut i32, instr: &str) {
+    match instr {
+        "inc" => *reg = *reg + 1,
+        "tpl" => *reg = *reg * 3,
+        "hlf" => *reg = *reg / 2,
+        _ => log::warn!("inst {} not covered", instr),
+    }
 }
 
-fn compare_data(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
-    for (key, value) in mfcsam.iter() {
-        if aunt.contains_key(key.as_str()) {
-            if value != aunt.get(key.as_str()).unwrap() {
-                return false;
-            }
-        }
-    }
-    true
-}
+fn puzzle(data: &Vec<&str>, mut a: i32) -> i32 {
+    log::trace!("--------------------------------");
+    let mut b = 0;
+    let mut pc: i32 = 0;
 
-fn compare_data_real(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
-    for (key, value) in mfcsam.iter() {
-        if aunt.contains_key(key.as_str()) {
-            let aunt_value = aunt.get(key.as_str()).unwrap();
-            let ok = match key.as_str() {
-                "cats" | "trees" => aunt_value > value,
-                "pomeranians" | "goldfish" => aunt_value < value,
-                _ => aunt_value == value,
-            };
-            if !ok {
-                return false;
+    while pc < data.len() as i32 {
+        let instr = data[pc as usize];
+        log::trace!("Instr {} ({}), a={}, b={}", pc, instr, a, b);
+        if instr.starts_with("jmp") {
+            let j: i32 = instr[4..].parse().unwrap();
+            log::trace!("Jump of {}", j);
+            pc += j;
+            continue;
+        } else if instr.contains(",") {
+            let j: i32 = instr[7..].parse().unwrap();
+            let value;
+            if &instr[4..5] == "a" {
+                value = a;
+            } else {
+                value = b;
+            }
+            let need_jump = (instr.starts_with("jie") && value % 2 == 0)
+                || (instr.starts_with("jio") && value == 1);
+            if need_jump {
+                pc += j;
+                log::trace!("Conditionnal jump  of {}", j);
+                continue;
+            }
+        } else {
+            if &instr[4..5] == "a" {
+                apply_instr(&mut a, &instr[..3]);
+            } else {
+                apply_instr(&mut b, &instr[..3]);
             }
         }
+        pc += 1;
     }
-    true
+    b
 }
 
 pub fn run(file: &String) {
     let text = fs::read_to_string(file).expect("File not found");
     let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} aunts Sue", data.len());
+    log::debug!("Imported {} instructions", data.len());
 
-    let mfcsam = get_mfcsam();
-    log::trace!("MFCSAM {:?}", mfcsam);
+    let part1 = puzzle(&data, 0);
+    let part2 = puzzle(&data, 1);
 
-    let regex = Regex::new(r" ([a-z]*): (\d*)").unwrap();
-    let mut num_aunt = 1;
-    for aunt in data {
-        let mut items: HashMap<_, i32> = HashMap::new();
-        for caps in regex.captures_iter(aunt) {
-            items.insert(caps.at(1).unwrap(), caps.at(2).unwrap().parse().unwrap());
-        }
-        if compare_data(&mfcsam, &items) {
-            log::info!("Aunt Sue 👵 {} has given the MFCSAM 🕵️", num_aunt);
-            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
-        }
-        if compare_data_real(&mfcsam, &items) {
-            log::info!("‍Real Aunt Sue 🤦 {} has given the MFCSAM 🕵️", num_aunt);
-            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
-        }
-        num_aunt += 1;
-    }
+    log::info!("🖥️ 💾 part 1 {}, part 2 {}", part1, part2);
 }

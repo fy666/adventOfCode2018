@@ -1,74 +1,40 @@
-//use itertools::Itertools;
-use onig::Regex;
-use std::collections::HashMap;
-use std::fs;
-
-fn get_mfcsam() -> HashMap<String, i32> {
-    let mut message = HashMap::new();
-    message.insert("children".to_string(), 3);
-    message.insert("cats".to_string(), 7);
-    message.insert("samoyeds".to_string(), 2);
-    message.insert("pomeranians".to_string(), 3);
-    message.insert("akitas".to_string(), 0);
-    message.insert("vizslas".to_string(), 0);
-    message.insert("goldfish".to_string(), 5);
-    message.insert("trees".to_string(), 3);
-    message.insert("cars".to_string(), 2);
-    message.insert("perfumes".to_string(), 1);
-    message
+fn get_number(row: i32, column: i32) -> i32 {
+    let diag = column + row - 1;
+    let mut start_diag: i32 = (0..diag).sum();
+    start_diag += 1;
+    log::debug!(
+        "{},{} : diag {} starts at {}, position {}",
+        row,
+        column,
+        diag,
+        start_diag,
+        start_diag + column - 1
+    );
+    start_diag + column - 1
 }
 
-fn compare_data(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
-    for (key, value) in mfcsam.iter() {
-        if aunt.contains_key(key.as_str()) {
-            if value != aunt.get(key.as_str()).unwrap() {
-                return false;
-            }
-        }
-    }
-    true
+fn op(input: u64) -> u64 {
+    (input * 252533).rem_euclid(33554393)
 }
 
-fn compare_data_real(mfcsam: &HashMap<String, i32>, aunt: &HashMap<&str, i32>) -> bool {
-    for (key, value) in mfcsam.iter() {
-        if aunt.contains_key(key.as_str()) {
-            let aunt_value = aunt.get(key.as_str()).unwrap();
-            let ok = match key.as_str() {
-                "cats" | "trees" => aunt_value > value,
-                "pomeranians" | "goldfish" => aunt_value < value,
-                _ => aunt_value == value,
-            };
-            if !ok {
-                return false;
-            }
+pub fn run(test: bool) {
+    if test {
+        get_number(2, 5);
+        let n = get_number(5, 3);
+        let mut num: u64 = 20151125;
+        for _ in 1..n {
+            num = op(num);
+            //log::trace!("{}", num);
         }
-    }
-    true
-}
-
-pub fn run(file: &String) {
-    let text = fs::read_to_string(file).expect("File not found");
-    let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} aunts Sue", data.len());
-
-    let mfcsam = get_mfcsam();
-    log::trace!("MFCSAM {:?}", mfcsam);
-
-    let regex = Regex::new(r" ([a-z]*): (\d*)").unwrap();
-    let mut num_aunt = 1;
-    for aunt in data {
-        let mut items: HashMap<_, i32> = HashMap::new();
-        for caps in regex.captures_iter(aunt) {
-            items.insert(caps.at(1).unwrap(), caps.at(2).unwrap().parse().unwrap());
+        log::info!("Code for 5,3 is {}", num);
+    } else {
+        let row = 2978;
+        let column = 3083;
+        let n = get_number(row, column);
+        let mut num: u64 = 20151125;
+        for _ in 1..n {
+            num = op(num);
         }
-        if compare_data(&mfcsam, &items) {
-            log::info!("Aunt Sue 👵 {} has given the MFCSAM 🕵️", num_aunt);
-            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
-        }
-        if compare_data_real(&mfcsam, &items) {
-            log::info!("‍Real Aunt Sue 🤦 {} has given the MFCSAM 🕵️", num_aunt);
-            log::trace!("Aunt Sue {} is {:?}", num_aunt, items);
-        }
-        num_aunt += 1;
+        log::info!("❄️ Snow machine code : {}", num);
     }
 }
