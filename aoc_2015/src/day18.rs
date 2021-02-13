@@ -1,68 +1,76 @@
-use itertools::Itertools;
-use onig::Regex;
-use std::collections::HashMap;
-use std::collections::HashSet;
+use ndarray::{s, Array2};
+use std::cmp;
 use std::fs;
 
-fn get_ordered_tup<'a>(a: &'a str, b: &'a str) -> (&'a str, &'a str) {
-    if a > b {
-        return (a, b);
+fn iter_once(arr: &Array2<i32>, broken_leds: bool) -> Array2<i32> {
+    let mut res = arr.clone();
+    let x_n = arr.shape()[0];
+    let y_n = arr.shape()[1];
+    for ((x, y), val) in arr.indexed_iter() {
+        let slice = arr.slice(s![
+            cmp::max(x.saturating_sub(1), 0)..cmp::min(x + 2, x_n),
+            cmp::max(y.saturating_sub(1), 0)..cmp::min(y + 2, y_n)
+        ]);
+        let neighbors = slice.sum() - val;
+        log::trace!("{:?} {:?}: val {}", x, y, val);
+        log::trace!("slice\n{:?}\n = {}", slice, neighbors);
+        if *val == 1 && (neighbors < 2 || neighbors > 3) {
+            res[[x, y]] = 0;
+        }
+        if *val == 0 && neighbors == 3 {
+            res[[x, y]] = 1;
+        }
     }
-    (b, a)
+    if broken_leds {
+        turn_on_corners(&mut res);
+    }
+    res
 }
 
-fn compute_hapiness(sitting: &Vec<&str>, wishes: &HashMap<(&str, &str), i32>) -> i32 {
-    let mut d = 0;
-    for w in sitting.windows(2) {
-        let tup = get_ordered_tup(w[0], w[1]);
-        d += wishes.get(&tup).unwrap_or(&0);
+fn turn_on_corners(arr: &mut Array2<i32>) {
+    let x_n = arr.shape()[0] - 1;
+    let y_n = arr.shape()[1] - 1;
+    arr[[0, 0]] = 1;
+    arr[[x_n, 0]] = 1;
+    arr[[0, y_n]] = 1;
+    arr[[x_n, y_n]] = 1;
+}
+
+fn char_to_led(input: &char) -> i32 {
+    if *input == '#' {
+        return 1;
+    } else {
+        return 0;
     }
-    let tup = get_ordered_tup(*sitting.last().unwrap(), *sitting.first().unwrap());
-    d += wishes.get(&tup).unwrap_or(&0);
-    d
 }
 
 pub fn run(file: &String) {
     let text = fs::read_to_string(file).expect("File not found");
-    let data: Vec<&str> = text.trim().split("\n").collect();
-    log::debug!("Imported {} guest wishes 🍽️", data.len());
-    let mut whishes: HashMap<_, i32> = HashMap::new();
-    let mut guests: HashSet<_> = HashSet::new();
-    let regex = Regex::new(r"(.*) would (gain|lose) (.*) happiness units by sitting next to (.*).")
-        .unwrap();
-    for whish in data {
-        let capture = regex.captures(whish).unwrap();
-        let guest1 = capture.at(1).unwrap();
-        let guest2 = capture.at(4).unwrap();
-        let mut hapiness_unit: i32 = capture.at(3).unwrap().parse().unwrap();
-        if capture.at(2).unwrap() == "lose" {
-            hapiness_unit = -hapiness_unit;
-        }
-        let tup = get_ordered_tup(guest1, guest2);
-        *whishes.entry(tup).or_insert(0) += hapiness_unit;
-        guests.insert(guest1);
-        guests.insert(guest2);
-    }
-    log::trace!("Guest wishes = {:?}", whishes);
-    log::trace!("Guest list = {:?}", guests);
+    let data: Vec<i32> = text
+        .lines()
+        .flat_map(|l| l.chars().map(|x| char_to_led(&x)))
+        .collect();
+    let grid = (data.len() as f32).sqrt() as usize;
 
-    let mut sitting: Vec<&str> = guests.into_iter().collect();
-    let mut max_happy = 0;
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
-        }
+    log::debug!("Imported grid of {}", grid);
+    let mut steps = 101;
+    if grid == 6 {
+        steps = 5; // if test mode
     }
-    log::info!("🍽️  max hapiness = {}", max_happy);
+    let arr = Array2::from_shape_vec((grid, grid), data).unwrap();
 
-    max_happy = 0;
-    sitting.push("Florence");
-    for perm in sitting.iter().copied().permutations(sitting.len()) {
-        let happiness = compute_hapiness(&perm, &whishes);
-        if happiness > max_happy {
-            max_happy = happiness;
-        }
+    let mut res = arr.clone();
+    for step in 1..steps {
+        res = iter_once(&res, false);
+        log::debug!("After {} step:\n{:?}", step, res);
     }
-    log::info!("🍽️  max hapiness with Florence 🥰 at table = {}", max_happy);
+
+    let mut res2 = arr.clone();
+    turn_on_corners(&mut res2);
+    log::debug!("First:\n{:?}", res2);
+    for step in 1..steps {
+        res2 = iter_once(&res2, true);
+        log::debug!("After {} step:\n{:?}", step, res2);
+    }
+    log::info!("Part 1: {} 💡, part 2: {} 💡", res.sum(), res2.sum());
 }
