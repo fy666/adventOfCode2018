@@ -1,31 +1,40 @@
 //use itertools::Itertools;
 //use onig::Regex;
 //use std::collections::HashMap;
+use rand::Rng;
 use std::collections::HashSet;
 use std::fs;
 
 fn get_best_match(input: &str, replacements: &Vec<Vec<&str>>) -> usize {
     let mut best_rep = -1;
-    let mut best_index = 0; //nput.len();
-                            //let mut best_score = -1;
+    let mut best_index = input.len();
+    let mut best_score = -1;
+    let mut valid_ix: Vec<usize> = Vec::new();
     for (ix, rep) in replacements.iter().enumerate() {
         for (index, _m) in input.match_indices(rep[1]) {
             //log::trace!("potential rep {:?}", rep);
             // let tmp_score = (rep[1].len() - rep[0].len()) as i32;
+            // // selecting change with fewer letters after
             // if tmp_score > best_score {
             //     best_score = tmp_score;
             //     best_rep = ix as i32;
             // }
-            if index > best_index {
+            //selecting change more to the left (or the right)
+            if index < best_index {
                 best_rep = ix as i32;
                 best_index = index;
             }
+            valid_ix.push(ix);
         }
     }
     if best_rep == -1 {
         panic!("No match found in {:?}", input)
     }
+    let mut rng = rand::thread_rng();
+    let rand = rng.gen_range(0..valid_ix.len());
+    log::trace!("{} replace candidates, use {}", valid_ix.len(), rand);
     best_rep as usize
+    //valid_ix[rand]
 }
 
 pub fn run(file: &String) {
