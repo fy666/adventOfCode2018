@@ -60,10 +60,10 @@ func (pq *PriorityQueue) update(item *Item, value [2]int, priority int) {
 	heap.Fix(pq, item.index)
 }
 
-func findPath(input [][]int, expand int) {
-	nCol := expand * len(input[0])
-	nRow := expand * len(input)
-	goal := [2]int{expand*(len(input)) - 1, expand*len(input[0]) - 1}
+func findPath(input *[][]int, expand int) {
+	nCol := expand * len((*input)[0])
+	nRow := expand * len((*input))
+	goal := [2]int{nRow - 1, nCol - 1}
 	list_pos := [][]int{{-1, 0}, {1, 0}, {0, 1}, {0, -1}}
 	pq := make(PriorityQueue, 0)
 	heap.Init(&pq)
@@ -92,7 +92,7 @@ func findPath(input [][]int, expand int) {
 				costCol := cCol % (nCol / expand)
 				costRow := cRow % (nCol / expand)
 				to_add := cCol/(nCol/expand) + cRow/(nCol/expand)
-				cost := (input[costRow][costCol] + to_add) % 9
+				cost := ((*input)[costRow][costCol] + to_add) % 9
 				if cost == 0 {
 					cost = 9
 				}
@@ -151,6 +151,6 @@ func main() {
 		data = append(data, convertList(strings.Split(scanner.Text(), "")))
 	}
 	fmt.Println("Read matrix of", len(data), "lines and", len(data[0]), "columns")
-	findPath(data, 1)
-	findPath(data, 5)
+	findPath(&data, 1)
+	findPath(&data, 5)
 }

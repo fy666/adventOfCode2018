@@ -66,6 +66,7 @@ func getLitteral(hex string) (int, string) {
 }
 
 func doOperation(data []int, code uint64) int {
+
 	switch code {
 	case 0:
 		return sum(data)
