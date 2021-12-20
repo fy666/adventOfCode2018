@@ -41,7 +41,7 @@ func add(t1 *Tree, t2 *Tree) (t *Tree) {
 	new_tree := &Tree{t1, 0, t2, nil}
 	t1.Parent = new_tree
 	t2.Parent = new_tree
-	return &Tree{t1, 0, t2, nil}
+	return new_tree
 }
 
 func (t *Tree) Split() bool {
@@ -49,9 +49,7 @@ func (t *Tree) Split() bool {
 		return false
 	}
 	if t.Right == nil && t.Left == nil {
-		//fmt.Println("Value =", t.Value)
 		if t.Value >= 10 {
-			//fmt.Println("Value above 10")
 			t.Right = &Tree{nil, int(math.Ceil(float64(t.Value) / 2.0)), nil, t}
 			t.Left = &Tree{nil, int(math.Floor(float64(t.Value) / 2.0)), nil, t}
 			// reset value
@@ -69,49 +67,65 @@ func (t *Tree) Split() bool {
 	return false
 }
 
-func (t *Tree) AddLeftMost(explodingTree *Tree, value int) {
-	if t == nil {
+func AddToRight(current *Tree, explored *Tree, value int) {
+	if current == nil {
 		return
 	}
-	if t.Right == nil || t.Right == explodingTree {
-		if t.Parent != nil && t.Parent.Right != t {
-			if t.Parent.Right == t {
-				t.Parent.AddLeftMost(t, value)
-			} else {
-				t.Parent.AddRightMost(t, value)
-			}
+
+	//fmt.Println("Adding", value, "starting with", current)
+	if current.Right == explored {
+		// Go up until you're on the left
+		for current.Parent != nil && current.Parent.Right == current {
+			current = current.Parent
 		}
-		return
+		if current.Parent == nil {
+			return
+		}
+		current = current.Parent
 	}
-	if t.Right != nil && t.Right.Right == nil {
-		//fmt.Println("LeftMost: adding", value, "to", t.Left.Value)
-		t.Right.Value += value
-	} else {
-		t.Right.AddLeftMost(t, value)
+
+	// Go one right
+	current = current.Right
+	//fmt.Println("current is", current)
+	// Then go down to left until a node
+	for current.Left != nil {
+		//fmt.Println("going down", current)
+		current = current.Left
 	}
+	//fmt.Println("On node", current.Value)
+	//fmt.Println("Add to Right", value, "to", current.Value)
+	current.Value += value
 }
-func (t *Tree) AddRightMost(explored *Tree, value int) {
-	if t == nil {
+
+func AddToLeft(current *Tree, explored *Tree, value int) {
+	if current == nil {
 		return
 	}
-	if t.Left == nil || t.Left == explored {
-		if t.Parent != nil {
-			if t.Parent.Right == t {
-				t.Parent.AddLeftMost(t, value)
-			} else {
-				t.Parent.AddRightMost(t, value)
-			}
+
+	//fmt.Println("Adding", value, "starting with", current)
+	if current.Left == explored {
+		// Go up until you're on the right
+		for current.Parent != nil && current.Parent.Left == current {
+			current = current.Parent
+			//fmt.Println("going up", current)
 		}
-		return
-	}
-	if t.Left != nil && t.Left.Left == nil {
-		//fmt.Println("RightMost: adding", value, "to", t.Right.Value)
-		t.Left.Value += value
-	} else {
-		if t.Left != explored {
-			t.Left.AddRightMost(t, value)
+		if current.Parent == nil {
+			return
 		}
+		current = current.Parent
 	}
+
+	// Go one left
+	current = current.Left
+	//fmt.Println("current is", current)
+	// Then go down to right until a node
+	for current.Right != nil {
+		//fmt.Println("going down", current)
+		current = current.Right
+	}
+	//fmt.Println("On node", current.Value)
+	//fmt.Println("Add to Left", value, "to", current.Value)
+	current.Value += value
 }
 
 func (t *Tree) getHead() *Tree {
@@ -121,32 +135,33 @@ func (t *Tree) getHead() *Tree {
 		return t
 	}
 }
-func (t *Tree) Explode(level int) {
+func (t *Tree) Explode(level int) bool {
 	if t == nil {
-		return
+		return false
 	}
-	//fmt.Println("Current tree = ", t.getHead().String())
 	if level == 4 && t.Right != nil && t.Left != nil {
 		//fmt.Println("Exploding", t.Left.Value, ",", t.Right.Value)
-
 		left := t.Left.Value
 		right := t.Right.Value
 		t.Left = nil
 		t.Right = nil
-		t.Parent.AddLeftMost(t, left)
-		t.Parent.AddRightMost(t, right)
+		AddToLeft(t.Parent, t, left)
+		AddToRight(t.Parent, t, right)
+		return true
 	}
-	//if t.Right != nil
-	t.Left.Explode(level + 1)
-	t.Right.Explode(level + 1)
-	return
+	if t.Left.Explode(level + 1) {
+		return true
+	}
+	if t.Right.Explode(level + 1) {
+		return true
+	}
+	return false
 }
 
 func createTree(data string, parent *Tree) (t *Tree) {
 	current := &Tree{nil, 0, nil, parent}
 	if data[0] == '[' {
 		ix := getSplitIndex(data)
-		//fmt.Println(data, ": split at", ix, " ->", data[1:ix], "and", data[ix+1:len(data)-1])
 		current.Left = createTree(data[1:ix], current)
 		current.Right = createTree(data[ix+1:len(data)-1], current)
 	} else {
@@ -198,10 +213,9 @@ func (t *Tree) reduce() {
 	origin := ""
 	for t.String() != origin {
 		origin = t.String()
-		t.Explode(0)
-		//fmt.Println("After explode:", t)
+		for t.Explode(0) {
+		}
 		t.Split()
-		//fmt.Println("After Split:", t)
 	}
 	return
 }
@@ -223,46 +237,36 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var tree *Tree
+	all_trees := make([]string, 0, 50)
 	for scanner.Scan() {
-		number := scanner.Text()
-		new_tree := createTree(number, nil)
-		fmt.Println("to add =", new_tree)
+		all_trees = append(all_trees, scanner.Text())
+	}
+
+	var tree *Tree
+	for _, t := range all_trees {
+		new_tree := createTree(t, nil)
 		tree = add(tree, new_tree)
-		fmt.Println("After add =", tree)
 		tree.reduce()
-		fmt.Println("After reduce =", tree)
-		//fmt.Println("tree value", tree.getValue())
-		//fmt.Println("Snail fish number =", number)
 	}
 	fmt.Println("Final tree =", tree)
 	fmt.Println("Final tree value", tree.getValue())
-	//return
-	/*
-		//t := createTree("[[2,[2,2]],[8,[8,1]]]", nil)
-		t1 := createTree("[[[[[9,8],1],2],3],4]", nil)
-		fmt.Println(t1.String(), t1.getValue())
-		t2 := createTree("[10,11]", nil)
-		fmt.Println(t2.String())
-		t2 = add(t1, t2)
-		fmt.Println(t2.String())
-		t2.Split()
-		fmt.Println(t2.String())
-		fmt.Println(t1.String(), t1.getValue())
-		t1.Explode(0)
-		fmt.Println(t1.String())
-		t3 := createTree("[7,[6,[5,[4,[3,2]]]]]", nil)
-		t3.Explode(0)
-		fmt.Println(t3)
-	*/
 
-	t4 := add(createTree("[[[[4,3],4],4],[7,[[8,4],9]]]", nil), createTree("[1,1]", nil))
-	fmt.Println("Tree", t4)
-	t4.reduce()
-	fmt.Println("After reduce", t4, "=", t4.getValue())
-
-	// t5 := createTree("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", nil)
-	// t5.Explode(0)
-	// fmt.Println("After reduce", t5)
+	maxSum := 0
+	for t1 := 0; t1 < len(all_trees); t1++ {
+		for t2 := 0; t2 < len(all_trees); t2++ {
+			if t1 == t2 {
+				continue
+			}
+			// lol
+			treeSum := add(createTree(all_trees[t1], nil), createTree(all_trees[t2], nil))
+			treeSum.reduce()
+			val := treeSum.getValue()
+			//fmt.Println("Tree", t1, "and", t2, "=", val)
+			if val > maxSum {
+				maxSum = val
+			}
+		}
+	}
+	fmt.Println("Maximum tree sum =", maxSum)
 
 }
