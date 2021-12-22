@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 )
 
 type Player struct {
@@ -16,14 +17,6 @@ type Dice struct {
 	turns int
 }
 
-type QuantumDice struct {
-	value int
-}
-
-func (d *QuantumDice) getSumRoll() {
-	//
-}
-
 func (d *Dice) String() string {
 	return fmt.Sprintf("Dice turns = %d, val = %d", d.turns, d.value)
 }
@@ -34,13 +27,7 @@ func (p *Player) String() string {
 }
 
 func fakeModulo(value int, mod int) int {
-	//res := value % mod
-	//div := value / mod
 	return (value-1)%mod + 1
-	// if res == 0 {
-	// 	return 1
-	// }
-	// return res
 }
 
 func (d *Dice) roll3() int {
@@ -55,7 +42,6 @@ func (d *Dice) roll3() int {
 	tmp[2] = d.value
 	d.value = fakeModulo(d.value+1, 100)
 	d.turns += 3
-	//fmt.Println("Dice values", tmp, "sum=", sum)
 	return sum
 }
 
@@ -68,38 +54,34 @@ func (p *Player) play(d *Dice) {
 	return
 }
 
-func (p *Player) playRoll(roll int) {
-	p.position += roll
-	p.position = fakeModulo(p.position, 10)
-	p.score += p.position
-	fmt.Printf("Player %d, roll %d, goes to %d has score %d \n", p.id, roll, p.position, p.score)
-	return
-}
-
 func (p *Player) wins(val int) bool {
 	return p.score >= val
 }
 
-func run(player1 Player, player2 Player, seq []int) int {
-	val_to_win := 21
-	ix := 0
-	for !player2.wins(val_to_win) && ix < len(seq) {
-		player1.playRoll(seq[ix])
-		ix += 1
-		if player1.wins(val_to_win) || ix == len(seq) {
-			break
+func coutWins(state [5]int, probs *map[int]int, stateCounts *map[[5]int][2]int64) [2]int64 { // Second part
+	if val, found := (*stateCounts)[state]; found {
+		return val
+	}
+	var result [2]int64
+	for roll, proba := range *probs {
+		new_state := state
+		turn := new_state[4]
+		new_state[turn+2] = fakeModulo(new_state[turn+2]+roll, 10)
+		new_state[turn] += new_state[turn+2]
+		new_state[4] = (new_state[4] + 1) % 2
+		//fmt.Println("Rolling", roll, "on state", state, "new = ", new_state)
+		if new_state[0] >= 21 {
+			result[0] += int64(proba)
+		} else if new_state[1] >= 21 {
+			result[1] += int64(proba)
+		} else {
+			sub_result := coutWins(new_state, probs, stateCounts)
+			result[0] += sub_result[0] * int64(proba)
+			result[1] += sub_result[1] * int64(proba)
 		}
-		player2.playRoll(seq[ix])
-		ix += 1
 	}
-
-	if player1.wins(val_to_win) {
-		return 1
-	} else if player2.wins(val_to_win) {
-		return 2
-	} else {
-		return 0
-	}
+	(*stateCounts)[state] = result
+	return result
 }
 
 func main() {
@@ -128,19 +110,18 @@ func main() {
 
 	fmt.Println("Player 1", player1)
 	fmt.Println("Player 2", player2)
-	fmt.Println("Dice", dice)
+	fmt.Println(dice)
 	if player1.wins(val_to_win) {
-		fmt.Println(dice.turns * player2.score)
+		fmt.Println("Part 1 result =", dice.turns*player2.score)
 	} else {
-		fmt.Println(dice.turns * player1.score)
+		fmt.Println("Part 1 result =", dice.turns*player1.score)
 	}
 	// Second part
 	probs := map[int]int{9: 1, 3: 1, 6: 7, 7: 6, 5: 6, 8: 3, 4: 3}
-	fmt.Println(probs)
-	// Reset players
-	player1 = &Player{0, s1, 1}
-	player2 = &Player{0, s2, 2}
-	fmt.Println(run(*player1, *player2, []int{9, 3}))
-	fmt.Println(run(*player1, *player2, []int{9, 3, 9, 4, 9, 9, 9, 4, 4, 4, 9, 4}))
-
+	state := [5]int{0, 0, s1, s2, 0}
+	stateCounts := make(map[[5]int][2]int64)
+	res := coutWins(state, &probs, &stateCounts)
+	fmt.Println("Count wins =", res)
+	fmt.Printf("Max number of wins = %.f \n", math.Max(float64(res[0]), float64(res[1])))
+	fmt.Println("Number of states =", len(stateCounts))
 }
