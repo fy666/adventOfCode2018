@@ -8,14 +8,19 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
-func runPartNomad(input int, commands []string, input_variables [3]int) [3]int {
+type Result struct {
+	state [2]int
+	value int64
+}
+
+func runPartNomad(input int, commands []string, input_variables [2]int, value int64, c chan Result, onExit func()) {
+	defer onExit()
 	variables := [4]int{0, 0, 0, 0}
-	for v := 0; v < 3; v++ {
-		variables[v] = input_variables[v]
-	}
+	copy(variables[1:], input_variables[:])
 	mapping := map[string]int{"x": 0, "y": 1, "z": 2, "w": 3}
 	for _, command := range commands {
 		txt := strings.Split(command, " ")
@@ -41,36 +46,43 @@ func runPartNomad(input int, commands []string, input_variables [3]int) [3]int {
 				return 0
 			}
 		}
-
 		val, err := strconv.Atoi(txt[2])
 		if err != nil {
 			val = variables[mapping[txt[2]]]
 		}
 		variables[mapping[txt[1]]] = f(variables[mapping[txt[1]]], val)
 	}
-	//fmt.Println("Variables =", variables)
-	res := [3]int{0, 0, 0}
-	for v := 0; v < 3; v++ {
-		res[v] = variables[v]
-	}
-	return res
+	copy(input_variables[:], variables[1:3])
+	c <- Result{input_variables, value}
+	return
 }
 
-func findSubmarineModel(code *[][]string, ix int, states *map[[3]int]int64, keepMax bool) map[[3]int]int64 {
-	new_states := make(map[[3]int]int64)
+func findSubmarineModel(code *[][]string, ix int, states *map[[2]int]int64, keepMax bool) map[[2]int]int64 {
+	new_states := make(map[[2]int]int64)
 	fmt.Println("Iterating on number", ix, len(*states), "states")
+	c := make(chan Result, len(*states)*9)
+	var wg sync.WaitGroup
+
 	for key, val := range *states {
 		var digit int64
 		for digit = 1; digit <= 9; digit += 1 {
-			new_state := runPartNomad(int(digit), (*code)[ix], key)
 			new_value := val*10 + digit
-			if same_val, contains := new_states[new_state]; contains {
-				if (keepMax && new_value > same_val) || (!keepMax && new_value < same_val) {
-					new_states[new_state] = new_value
-				}
-			} else {
-				new_states[new_state] = new_value
+			wg.Add(1)
+			go runPartNomad(int(digit), (*code)[ix], key, new_value, c, func() { wg.Done() })
+		}
+	}
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+
+	for res := range c {
+		if same_val, contains := new_states[res.state]; contains {
+			if (keepMax && res.value > same_val) || (!keepMax && res.value < same_val) {
+				new_states[res.state] = res.value
 			}
+		} else {
+			new_states[res.state] = res.value
 		}
 	}
 	ix += 1
@@ -80,11 +92,11 @@ func findSubmarineModel(code *[][]string, ix int, states *map[[3]int]int64, keep
 	return new_states
 }
 
-func findExtremumValid(data map[[3]int]int64) (int64, int64) {
+func findExtremumValid(data map[[2]int]int64) (int64, int64) {
 	var maxv int64 = 0
 	var minv int64 = 99999999999999
 	for key, val := range data {
-		if key[2] == 0 {
+		if key[1] == 0 {
 			if val > maxv {
 				maxv = val
 			}
@@ -129,18 +141,20 @@ func main() {
 	}
 
 	fmt.Println("Importing nomad code of", len(monad_code))
-	states := make(map[[3]int]int64)
-	states[[3]int{0, 0, 0}] = 0
+	states := make(map[[2]int]int64)
+	states[[2]int{0, 0}] = 0
 	start := time.Now()
 	result := findSubmarineModel(&monad_code, 0, &states, true)
 	findExtremumValid(result)
 	elapsed := time.Since(start)
 	fmt.Printf("Algorithm took %s \n", elapsed)
 
-	start = time.Now()
-	result = findSubmarineModel(&monad_code, 0, &states, false)
-	findExtremumValid(result)
-	elapsed = time.Since(start)
-	fmt.Printf("Algorithm took %s \n", elapsed)
+	/*
+		start = time.Now()
+		result = findSubmarineModel(&monad_code, 0, &states, false)
+		findExtremumValid(result)
+		elapsed = time.Since(start)
+		fmt.Printf("Algorithm took %s \n", elapsed)
+	*/
 	return
 }
