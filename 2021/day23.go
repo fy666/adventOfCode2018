@@ -9,8 +9,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/thoas/go-funk"
 )
 
 func abs(input int) int {
@@ -123,10 +121,20 @@ func filterPotentialPositions(crab [2]int, crabs *map[[2]int]string, rooms *map[
 			if !isChamberEmptyOrFilledWithCorrectCrab((*crabs)[crab], rooms, crabs) {
 				continue
 			}
+			// TODO: Check to go to deepest pos
 		}
 		result = append(result, pos)
 	}
 	return result
+}
+
+func checkIfContains(vec *[][2]int, pos [2]int) bool {
+	for _, v := range *vec {
+		if v[0] == pos[0] && v[1] == pos[1] {
+			return true
+		}
+	}
+	return false
 }
 
 func getPotentialPositions(crab [2]int, crabs *map[[2]int]string, rooms *map[[2]int]string, ppuzzle *[][]string) [][2]int {
@@ -148,7 +156,7 @@ func getPotentialPositions(crab [2]int, crabs *map[[2]int]string, rooms *map[[2]
 			if cRow < nRow && cRow >= 0 && cCol < nCol && cCol >= 0 {
 				//fmt.Println("Test ", cRow, ",", cCol)
 				_, contains := (*crabs)[[2]int{cRow, cCol}]
-				if isFreeSpot(puzzle[cRow][cCol]) && !contains && !funk.Contains(potential_positions, [2]int{cRow, cCol}) {
+				if isFreeSpot(puzzle[cRow][cCol]) && !contains && !checkIfContains(&potential_positions, [2]int{cRow, cCol}) {
 					//fmt.Println("Adding to position list")
 					positions_to_visit = append(positions_to_visit, [2]int{cRow, cCol})
 					potential_positions = append(potential_positions, [2]int{cRow, cCol})
