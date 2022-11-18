@@ -1,12 +1,21 @@
 # Set the project name
+cmake_minimum_required(VERSION 3.16)
 project (advent_of_code_2022)
 
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF)
+
+find_package(Boost 1.71.0 COMPONENTS regex log)
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES
     main.cpp
     utils.cpp
+    day1.cpp
+    day2.cpp
 )
 
+MESSAGE(${Boost_LIBRARIES})
 # Add an executable with the above sources
 add_executable(main ${SOURCES})
-target_link_libraries(main fmt)
+target_link_libraries(main fmt ${Boost_LIBRARIES} boost_log_setup)
