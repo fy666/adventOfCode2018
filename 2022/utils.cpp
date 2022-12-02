@@ -8,8 +8,7 @@ template <typename T> std::vector<T> read_file(std::string filename, std::functi
   myfile.open(filename);
   std::string myline;
   if (myfile.is_open()) {
-    while (myfile) {
-      std::getline(myfile, myline);
+    while (std::getline(myfile, myline)) {
       result.push_back(func(myline));
     }
   }
