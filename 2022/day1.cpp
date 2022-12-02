@@ -18,10 +18,10 @@ void testRegex() {
   BOOST_LOG_TRIVIAL(info) << fmt::format("Computing something: {}", what.size());
 }
 
-void day1Run() {
-  BOOST_LOG_TRIVIAL(info) << "*** Doing day 2 ***";
-  auto data = read_file<float>("../inputs/day1.txt", my_own_stof);
-  BOOST_LOG_TRIVIAL(debug) << fmt::format("Read {} lines. First item = {}, last = {}", data.size(), data[0], data.back());
+void day1Run(bool test) {
+  std::string fileName = fmt::format("../inputs/day1{}.txt", test ? "_test" : "");
+  auto data = read_file<float>(fileName, my_own_stof);
+  BOOST_LOG_TRIVIAL(debug) << fmt::format("Read {} lines. First item = {}, last = {}", data.size(), data.front(), data.back());
 
   int count = 0;
   std::vector<float> elves;

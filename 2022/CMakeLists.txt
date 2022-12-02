@@ -6,8 +6,14 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)  
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-find_package(Boost 1.71.0 COMPONENTS regex log)
+find_package(Boost 1.71.0 COMPONENTS regex log program_options)
 # Create a sources variable with a link to all cpp files to compile
+
+
+file(GLOB all_SRCS
+        "${PROJECT_SOURCE_DIR}/*.cpp"
+        )
+
 set(SOURCES
     main.cpp
     utils.cpp
@@ -17,5 +23,5 @@ set(SOURCES
 
 MESSAGE(${Boost_LIBRARIES})
 # Add an executable with the above sources
-add_executable(main ${SOURCES})
+add_executable(main ${all_SRCS})
 target_link_libraries(main fmt ${Boost_LIBRARIES} boost_log_setup)
