@@ -80,7 +80,7 @@ int main(int ac, char **av) {
   days[(day - 1)](test);
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  BOOST_LOG_TRIVIAL(info) << fmt::format(">> Day {} run in {} ms", day, duration.count());
+  BOOST_LOG_TRIVIAL(info) << fmt::format(">> Day {} run in {:.3} ms", day, float(duration.count() / 1000.f));
 
   return 1;
 }
