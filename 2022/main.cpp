@@ -18,9 +18,12 @@ namespace logging = boost::log;
 namespace expr = boost::log::expressions;
 
 void init(bool debug) {
-  boost::log::add_console_log(std::cout, boost::log::keywords::format =
-                                             expr::stream << "[" << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S") << "]"
-                                                          << " [" << logging::trivial::severity << "] " << expr::smessage);
+  boost::log::add_console_log(
+      std::cout, boost::log::keywords::format =
+                     expr::stream << "["
+                                  << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S")
+                                  << "]"
+                                  << " [" << logging::trivial::severity << "] " << expr::smessage);
   logging::core::get()->set_filter(logging::trivial::severity >= logging::trivial::info);
   if (debug) {
     logging::core::get()->set_filter(logging::trivial::severity >= logging::trivial::debug);
@@ -30,7 +33,8 @@ void init(bool debug) {
 int main(int ac, char **av) {
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()("help", "produce help message");
-  desc.add_options()("day", boost::program_options::value<int>()->default_value(10), "set day")("debug", "logger in debug")("test", "Run test input");
+  desc.add_options()("day", boost::program_options::value<int>()->default_value(10),
+                     "set day")("debug", "logger in debug")("test", "Run test input");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), vm);
