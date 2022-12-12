@@ -23,6 +23,8 @@ template std::vector<std::vector<float>>
 read_file<std::vector<float>>(std::string filename, std::function<std::vector<float>(const std::string)> func);
 template std::vector<std::vector<int>>
 read_file<std::vector<int>>(std::string filename, std::function<std::vector<int>(const std::string)> func);
+template std::vector<std::vector<char>>
+read_file<std::vector<char>>(std::string filename, std::function<std::vector<char>(const std::string)> func);
 
 // void test() {
 //   std::cout << "Main in utils.cpp" << std::endl;
