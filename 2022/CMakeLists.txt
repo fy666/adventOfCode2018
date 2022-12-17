@@ -21,6 +21,7 @@ set(SOURCES
     day2.cpp
 )
 
+set(CMAKE_CXX_FLAGS "-O3")
 MESSAGE(${Boost_LIBRARIES})
 # Add an executable with the above sources
 add_executable(main ${all_SRCS})
