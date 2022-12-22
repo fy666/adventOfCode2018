@@ -9,7 +9,6 @@ void day6Run(bool test) {
   BOOST_LOG_TRIVIAL(debug) << fmt::format("Read {} lines", data.size());
   std::string message = data[0];
   for (uint x = 0; x < message.size() - 4; ++x) {
-
     std::set<int> mySet(message.begin() + x, message.begin() + x + 4);
     if (mySet.size() == 4) {
       BOOST_LOG_TRIVIAL(debug) << fmt::format("First part = {}", x + 4);

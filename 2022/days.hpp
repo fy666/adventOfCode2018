@@ -13,6 +13,15 @@ static float my_own_stof(const std::string x) {
   }
 }
 
+static int my_own_stoi(const std::string x) {
+  if (x.size() == 0) {
+    return -1;
+  } else {
+    return stoi(x);
+  }
+}
+
+static int positive_modulo(int i, int n) { return (i % n + n) % n; }
 static std::string my_string(const std::string x) { return x; }
 
 void day1Run(bool test);

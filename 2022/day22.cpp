@@ -47,24 +47,24 @@ Point getPointAfterRotation(Point a, char originalDirection, char newDirection, 
     return {0, a.first};
   }
   if (originalDirection == 'v' && newDirection == '>') {
-    return {size - 1 - a.first, 0};
+    return {size - 1 - a.second, 0}; /* only needed for test */
   }
   if (originalDirection == '>' && newDirection == '^') {
     return {size - 1, a.first};
   }
-  if (originalDirection == '^' && newDirection == '<') {
-    return {size - 1 - a.first, size - 1};
-  }
+  // if (originalDirection == '^' && newDirection == '<') {
+  //   return {size - 1 - a.first, size - 1};
+  // }
 
   /* 90 rotations to right */
   if (originalDirection == '<' && newDirection == '^') {
-    return {size - 1, size - 1 - a.first};
+    return {size - 1, size - 1 - a.first}; /* only needed for test */
   }
   if (originalDirection == '^' && newDirection == '>') {
     return {a.second, 0};
   }
   if (originalDirection == '>' && newDirection == 'v') {
-    return {0, size - 1 - a.first};
+    return {0, size - 1 - a.first}; /* only needed for test */
   }
   if (originalDirection == 'v' && newDirection == '<') {
     return {a.second, size - 1};
@@ -77,13 +77,13 @@ Point getPointAfterRotation(Point a, char originalDirection, char newDirection, 
   if (originalDirection == '>' && newDirection == '<') {
     return {size - a.first - 1, size - 1};
   }
-  if (originalDirection == '^' && newDirection == 'v') {
-    return {0, size - a.second - 1};
-  }
+  // if (originalDirection == '^' && newDirection == 'v') {
+  //   return {0, size - a.second - 1};
+  // }
   if (originalDirection == 'v' && newDirection == '^') {
-    return {size - 1, size - a.second - 1};
+    return {size - 1, size - a.second - 1}; /* only needed for test */
   }
-  BOOST_LOG_TRIVIAL(warning) << "Combination not found" << std::endl;
+  BOOST_LOG_TRIVIAL(error) << fmt::format("Combination {}{} not found", originalDirection, newDirection);
   return {0, 0};
 }
 
@@ -133,7 +133,7 @@ public:
     NextPoint result;
     result.direction = p.direction;
     result.point = p.point + DIRECTIONS[p.direction];
-    BOOST_LOG_TRIVIAL(debug) << fmt::format("{},{} to {},{}", p.point.first, p.point.second, result.point.first,
+    BOOST_LOG_TRIVIAL(trace) << fmt::format("{},{} to {},{}", p.point.first, p.point.second, result.point.first,
                                             result.point.second);
     auto adjacent = adjacentCubes.find(p.direction)->second;
     result.cube = adjacent.first;
@@ -143,6 +143,7 @@ public:
       result.point = getPointAfterRotation(result.point, p.direction, result.direction, size);
     } else {
       result.cube = this;
+      result.direction = p.direction;
     }
 
     return result;
@@ -178,19 +179,6 @@ std::string parseDay22(const std::vector<std::string> &data, std::vector<Cube> &
   mapSize = std::max(mapSize, lineCounter);
   int numCubes = mapSize / cubeSize;
   BOOST_LOG_TRIVIAL(debug) << fmt::format("Map size is {}, cube size is {}, {} cubes", mapSize, cubeSize, numCubes);
-  // std::vector<Cube> cubes{size_t(numCubes * numCubes)};
-  // int counter = 0;
-  // for (auto &c : cubes) {
-  //   int colum = counter % numCubes;
-  //   int line = counter / numCubes;
-  //   c.topLeftCubePos = {line, colum};
-  //   c.topLeftMapPos = {1 + line * cubeSize, 1 + colum * cubeSize};
-  //   BOOST_LOG_TRIVIAL(debug) << fmt::format("Cube {} at {},{} and {},{}", counter, c.topLeftCubePos.first,
-  //                                           c.topLeftCubePos.second, c.topLeftMapPos.first,
-  //                                           c.topLeftMapPos.second);
-  //   c.size = cubeSize;
-  //   counter++;
-  // }
 
   lineCounter = 0;
   for (const auto &x : data) {
@@ -259,9 +247,9 @@ int part1Day22(std::string inputCommands, std::vector<Cube> &cubes) {
                                                 next.point.second, next.direction, next.cube->topLeftCubePos.first,
                                                 next.cube->topLeftCubePos.second);
         keepMoving = next.cube->getVal(next.point);
-        // next.cube->print();
+        next.cube->print();
         if (keepMoving) {
-          BOOST_LOG_TRIVIAL(debug) << fmt::format("Keep moving");
+          BOOST_LOG_TRIVIAL(trace) << fmt::format("Keep moving");
           tmp = next;
         }
       }
@@ -292,13 +280,6 @@ void day22Run(bool test) {
     cube.computeAdjacentCubesPart1(cubes, 4);
   }
   BOOST_LOG_TRIVIAL(debug) << fmt::format("Found {} cubes", cubes.size());
-  {
-    // for (const auto &cube : cubes) {
-    //   cube.printAdjacentCubes();
-    // }
-    auto result = part1Day22(inputCommands, cubes);
-    BOOST_LOG_TRIVIAL(info) << fmt::format("Part 1 = {}", result);
-  }
   {
     if (test) {
       cubes2[0].adjacentCubes['>'] = {&cubes2[5], '<'};
@@ -366,7 +347,5 @@ void day22Run(bool test) {
     // }
     auto result = part1Day22(inputCommands, cubes2);
     BOOST_LOG_TRIVIAL(info) << fmt::format("Part 2 = {}", result);
-    // 122204 too high
-    // 45407 too low
   }
 }

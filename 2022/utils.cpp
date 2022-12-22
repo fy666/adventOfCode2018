@@ -18,6 +18,8 @@ template <typename T> std::vector<T> read_file(std::string filename, std::functi
 
 template std::vector<std::string> read_file<std::string>(std::string filename,
                                                          std::function<std::string(const std::string)> func);
+
+template std::vector<int> read_file<int>(std::string filename, std::function<int(const std::string)> func);
 template std::vector<float> read_file<float>(std::string filename, std::function<float(const std::string)> func);
 template std::vector<std::vector<float>>
 read_file<std::vector<float>>(std::string filename, std::function<std::vector<float>(const std::string)> func);
