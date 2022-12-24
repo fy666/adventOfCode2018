@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-struct Point {
+struct PointXY {
   int x = 0;
   int y = 0;
 };
@@ -34,7 +34,7 @@ Move day9parser(const std::string x) {
   return move;
 }
 
-void moveTail(Point &head, Point &tail) {
+void moveTail(PointXY &head, PointXY &tail) {
   int dx = head.x - tail.x;
   int dy = head.y - tail.y;
   /* Nothing to do */
@@ -49,7 +49,7 @@ void moveTail(Point &head, Point &tail) {
   }
 }
 
-void moveHead(Point &head, std::vector<Point> &tails, const Move &move, std::set<std::pair<int, int>> &positions) {
+void moveHead(PointXY &head, std::vector<PointXY> &tails, const Move &move, std::set<std::pair<int, int>> &positions) {
   for (uint s = 1; s <= move.steps; ++s) {
     head.x += move.direction[0];
     head.y += move.direction[1];
@@ -63,8 +63,8 @@ void moveHead(Point &head, std::vector<Point> &tails, const Move &move, std::set
 
 int part1(const std::vector<Move> &moves, const std::size_t numberOfTails) {
   std::set<std::pair<int, int>> positions;
-  Point head{0, 0};
-  std::vector<Point> tails{numberOfTails};
+  PointXY head{0, 0};
+  std::vector<PointXY> tails{numberOfTails};
   for (const auto &move : moves) {
     moveHead(head, tails, move, positions);
   }

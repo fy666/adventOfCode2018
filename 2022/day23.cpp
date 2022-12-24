@@ -5,12 +5,6 @@
 #include <map>
 #include <vector>
 
-typedef std::pair<int, int> Point;
-static Point operator+(const Point &a, const Point &b) {
-  Point res;
-  return {a.first + b.first, a.second + b.second};
-}
-
 std::vector<std::vector<Point>> MOVES{{{-1, -1}, {0, -1}, {1, -1}}, /* North */
                                       {{-1, 1}, {0, 1}, {1, 1}},    /* South */
                                       {{-1, -1}, {-1, 0}, {-1, 1}}, /* West */

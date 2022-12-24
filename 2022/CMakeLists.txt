@@ -27,3 +27,4 @@ MESSAGE(${Boost_LIBRARIES})
 # Add an executable with the above sources
 add_executable(main ${all_SRCS})
 target_link_libraries(main fmt ${Boost_LIBRARIES} boost_log_setup)
+target_compile_features(main PRIVATE cxx_std_17)

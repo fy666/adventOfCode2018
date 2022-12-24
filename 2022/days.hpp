@@ -5,6 +5,13 @@
 #include <iostream>
 #include <vector>
 
+typedef std::pair<int, int> Point;
+static Point operator+(const Point &a, const Point &b) {
+  Point res;
+  return {a.first + b.first, a.second + b.second};
+}
+static bool operator==(const Point &a, const Point &b) { return a.first == b.first && a.second == b.second; }
+
 static float my_own_stof(const std::string x) {
   if (x.size() == 0) {
     return -1;

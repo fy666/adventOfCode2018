@@ -13,13 +13,6 @@ std::map<char, int> DIRECTION_SCORE = {{'>', 0}, {'v', 1}, {'<', 2}, {'^', 3}};
 std::map<char, char> DIRECTION_R = {{'>', 'v'}, {'v', '<'}, {'<', '^'}, {'^', '>'}};
 std::map<char, char> DIRECTION_L = {{'>', '^'}, {'^', '<'}, {'<', 'v'}, {'v', '>'}};
 
-bool operator==(const Point &a, const Point &b) { return a.first == b.first && a.second == b.second; }
-
-Point operator+(const Point &a, const Point &b) {
-  Point res;
-  return {a.first + b.first, a.second + b.second};
-}
-
 class Cube;
 
 struct NextPoint {
