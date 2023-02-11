@@ -31,28 +31,9 @@ static int my_own_stoi(const std::string x) {
 static int positive_modulo(int i, int n) { return (i % n + n) % n; }
 static std::string my_string(const std::string x) { return x; }
 
-void day1Run(bool test);
-void day2Run(bool test);
-void day3Run(bool test);
-void day4Run(bool test);
-void day5Run(bool test);
-void day6Run(bool test);
-void day7Run(bool test);
-void day8Run(bool test);
-void day9Run(bool test);
-void day10Run(bool test);
-void day11Run(bool test);
-void day12Run(bool test);
-void day13Run(bool test);
-void day14Run(bool test);
-void day15Run(bool test);
-void day16Run(bool test);
-void day17Run(bool test);
-void day18Run(bool test);
-void day19Run(bool test);
-void day20Run(bool test);
-void day21Run(bool test);
-void day22Run(bool test);
-void day23Run(bool test);
-void day24Run(bool test);
-void day25Run(bool test);
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/repetition/repeat_from_to.hpp>
+
+#define DECL(z, n, data) BOOST_PP_CAT(void day, BOOST_PP_CAT(n, Run(bool test);))
+
+BOOST_PP_REPEAT_FROM_TO(1, 26, DECL, 0)

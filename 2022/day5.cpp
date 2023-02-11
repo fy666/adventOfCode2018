@@ -26,7 +26,7 @@ void move2(std::vector<std::vector<char>> &crates, int stackStart, int stackNumb
   }
 }
 
-void day5(const std::vector<std::string> &data, std::vector<std::vector<char>> &crates) {
+std::string day5(const std::vector<std::string> &data, std::vector<std::vector<char>> &crates, bool day1) {
   // move 1 from 2 to 1
   const boost::regex expr("^move (\\d+) from (\\d+) to (\\d+)");
   for (auto d : data) {
@@ -35,17 +35,19 @@ void day5(const std::vector<std::string> &data, std::vector<std::vector<char>> &
       int stackNumber = stoi(what[1]);
       int stackStart = stoi(what[2]);
       int stackEnd = stoi(what[3]);
-      std::cout << what[0] << '\n';
-      BOOST_LOG_TRIVIAL(info) << fmt::format("Move {} from {} to {}", stackNumber, stackStart, stackEnd);
-      move2(crates, stackStart - 1, stackNumber, stackEnd - 1);
+      BOOST_LOG_TRIVIAL(trace) << fmt::format("Move {} from {} to {}", stackNumber, stackStart, stackEnd);
+      if (day1) {
+        move(crates, stackStart - 1, stackNumber, stackEnd - 1);
+      } else {
+        move2(crates, stackStart - 1, stackNumber, stackEnd - 1);
+      }
     }
   }
   std::string result;
   for (auto s : crates) {
-    BOOST_LOG_TRIVIAL(info) << fmt::format("{}", char(s.back()));
     result.append(sizeof(char), s.back());
   }
-  BOOST_LOG_TRIVIAL(info) << fmt::format("Day 1 last crates =  {}", result);
+  return result;
 }
 
 void day5Run(bool test) {
@@ -69,5 +71,9 @@ void day5Run(bool test) {
     crates.push_back({'V', 'H', 'P', 'S', 'Z', 'W', 'R', 'B'}); // 8
     crates.push_back({'B', 'M', 'J', 'C', 'G', 'H', 'Z', 'W'}); // 9
   }
-  day5(data, crates);
+
+  auto d1 = day5(data, crates, true);
+  BOOST_LOG_TRIVIAL(info) << fmt::format("Day 1 last crates =  {}", d1);
+  auto d2 = day5(data, crates, false);
+  BOOST_LOG_TRIVIAL(info) << fmt::format("Day 2 last crates =  {}", d2);
 }
