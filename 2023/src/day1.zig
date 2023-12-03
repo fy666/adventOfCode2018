@@ -11,7 +11,7 @@ pub fn read_and_count_all(part2: bool) !void {
     var sum: i32 = 0;
     var splits = std.mem.split(u8, data, "\n");
 
-    const numbers = [_][:0]const u8{ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+    const numbers = [_][]const u8{ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 
     while (splits.next()) |line| {
         var calibration_values = std.ArrayList(i32).init(allocator);
