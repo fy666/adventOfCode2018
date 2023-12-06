@@ -5,33 +5,7 @@ const fileData = @embedFile("./files/day4.txt");
 const fileDataEx = @embedFile("./files/day4ex.txt");
 const Regex = @import("zig-regex").Regex;
 
-fn get_match(line: []const u8) !?i32 {
-    var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
-    defer arena_state.deinit();
-    const allocator = arena_state.allocator();
-    var re = try Regex.compile(allocator, "(\\d+)");
-
-    var captures = try re.captures(line);
-    var result: ?i32 = null;
-    //std.debug.print("captures = {}\n", .{captures.?.len()});
-    if (captures != null) {
-        var cap = captures.?.sliceAt(1);
-        result = try std.fmt.parseInt(i32, cap.?, 10);
-    }
-    return result;
-}
-
-fn get_all_numbers(line: []const u8, values: *std.ArrayList(i32)) !void {
-    var split_numbers = std.mem.split(u8, line, " ");
-    while (split_numbers.next()) |num_str| {
-        var res = try get_match(num_str);
-        if (res != null) {
-            try values.append(res.?);
-            //std.debug.print("{s} -> {} \n", .{ num_str, res.? });
-        }
-    }
-    //std.debug.print("{s} -> {any} \n", .{ line, values.items });
-}
+const utils = @import("./utils.zig");
 
 fn solve(data: anytype) !void {
     var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
@@ -51,10 +25,10 @@ fn solve(data: anytype) !void {
 
         var split_numbers = std.mem.split(u8, numbers, "|");
         var winning_numbers = std.ArrayList(i32).init(allocator);
-        try get_all_numbers(split_numbers.next().?, &winning_numbers);
+        try utils.get_all_numbers(i32, split_numbers.next().?, &winning_numbers);
         var drawn_numbers = std.ArrayList(i32).init(allocator);
         //std.debug.print("Winning = {any}\n", .{winning_numbers.items});
-        try get_all_numbers(split_numbers.next().?, &drawn_numbers);
+        try utils.get_all_numbers(i32, split_numbers.next().?, &drawn_numbers);
         //std.debug.print("Number list {s} -> ", .{numbers});
         std.debug.print("Winning = {any}, Drawn = {any}\n", .{ winning_numbers.items, drawn_numbers.items });
         var winning_drawn_numbers: i32 = 0;

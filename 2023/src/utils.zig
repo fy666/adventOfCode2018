@@ -1,3 +1,6 @@
+const std = @import("std");
+const Regex = @import("zig-regex").Regex;
+
 const MyErr = error{OusideMatrix};
 pub const Point2D = struct {
     x: i32,
@@ -40,4 +43,32 @@ pub fn getDirections() [8]Point2D {
         }
     }
     return res;
+}
+
+pub fn get_match(comptime T: type, line: []const u8) !?T {
+    var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
+    defer arena_state.deinit();
+    const allocator = arena_state.allocator();
+    var re = try Regex.compile(allocator, "(\\d+)");
+
+    var captures = try re.captures(line);
+    var result: ?T = null;
+    //std.debug.print("captures = {}\n", .{captures.?.len()});
+    if (captures != null) {
+        var cap = captures.?.sliceAt(1);
+        result = try std.fmt.parseInt(T, cap.?, 10);
+    }
+    return result;
+}
+
+pub fn get_all_numbers(comptime T: type, line: []const u8, values: *std.ArrayList(T)) !void {
+    var split_numbers = std.mem.split(u8, line, " ");
+    while (split_numbers.next()) |num_str| {
+        var res = try get_match(T, num_str);
+        if (res != null) {
+            try values.append(res.?);
+            //std.debug.print("{s} -> {} \n", .{ num_str, res.? });
+        }
+    }
+    //std.debug.print("{s} -> {any} \n", .{ line, values.items });
 }
