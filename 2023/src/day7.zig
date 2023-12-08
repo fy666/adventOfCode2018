@@ -1,13 +1,10 @@
 const std = @import("std");
-const ascii = @import("std").ascii;
 const utils = @import("./utils.zig");
 
 const fileData = @embedFile("./files/day7.txt");
 const fileDataEx = @embedFile("./files/day7ex.txt");
 
-const Allocator = std.mem.Allocator;
-
-fn getTypeWithJokers(handMap: *std.AutoHashMap(u8, i32)) !i32 {
+fn replaceJokers(handMap: *std.AutoHashMap(u8, i32)) !void {
     var num_jokers: i32 = handMap.get('J').?;
     _ = handMap.remove('J');
 
@@ -21,7 +18,6 @@ fn getTypeWithJokers(handMap: *std.AutoHashMap(u8, i32)) !i32 {
         }
     }
     try handMap.put(more_reccurrent_key, more_recurrent_element + num_jokers);
-    return getType(handMap);
 }
 
 fn getType(handMap: *std.AutoHashMap(u8, i32)) i32 {
@@ -93,13 +89,9 @@ pub const Hand = struct {
                 else => unreachable,
             };
             if (part2 and num == 11) {
-                num = 0;
+                num = 0; // "J" now has lower priority
             }
-            //std.debug.print("Numeric hand part = {} \n", .{num});
             numeric_hand_local[ih] = num;
-            // if(c >= 65){
-            // numeric_hand[ih] =
-            // }
             ih += 1;
 
             var entry = handClassifier.get(c);
@@ -109,16 +101,13 @@ pub const Hand = struct {
             }
             try handClassifier.put(c, new_value);
         }
-        //std.debug.print("Numeric hand = {any} \n", .{numeric_hand_local});
-        var rank: i32 = undefined;
+
         if (part2) {
-            rank = try getTypeWithJokers(&handClassifier);
-        } else {
-            rank = getType(&handClassifier);
+            // update joker to compute hand rank
+            try replaceJokers(&handClassifier);
         }
-        //std.debug.print("Counted hand {s} = {any}\n", .{ hand, handClassifier });
+        var rank = getType(&handClassifier);
         var item = Hand{ .hand = hand, .bid = bid, .rank = rank, .numeric_hand = numeric_hand_local };
-        //.init(allocator), .cache = std.AutoHashMap(i64, i64).init(allocator) };
         return item;
     }
 };
@@ -126,15 +115,11 @@ pub const Hand = struct {
 // should return true if a < b :)
 fn cmpFunc(context: void, a: Hand, b: Hand) bool {
     _ = context;
-    //std.debug.print("comparing {s} and {s}\n", .{ a.numeric_hand, b.numeric_hand });
-    //return a.bid < b.bid;
     if (a.rank != b.rank) {
         return a.rank < b.rank;
     }
-    //std.debug.print("comp {s} and {s}\n", .{ a.numeric_hand, b.numeric_hand });
     var index: usize = 0;
     while (index < 5) : (index += 1) {
-        //std.debug.print("{}: {} vs {}\n", .{ index, a.numeric_hand[index], b.numeric_hand[index] });
         if (a.numeric_hand[index] != b.numeric_hand[index]) {
             return a.numeric_hand[index] < b.numeric_hand[index];
         }
@@ -154,22 +139,19 @@ fn solve(data: anytype, part2: bool) !void {
         var hand_content = std.mem.split(u8, line, " ");
         var tmp_hand = hand_content.next().?;
         var bid = try utils.get_match(i32, hand_content.next().?);
-        //var hand = Hand{ .hand = tmp_hand, .bid = bid.? };
         var hand = try Hand.newHand(tmp_hand, bid.?, part2);
         try hands.append(hand);
-        std.debug.print("New Hand {s} {} ({})\n", .{ hand.hand, hand.bid, hand.rank });
+        //std.debug.print("New Hand {s} {} ({})\n", .{ hand.hand, hand.bid, hand.rank });
     }
-    std.debug.print("{} hands found\n", .{hands.items.len});
-    //var x = hands.items;
     std.sort.insertion(Hand, hands.items, comptime {}, comptime cmpFunc);
     var hand_rank: i32 = 1;
     var score: i32 = 0;
     for (hands.items) |hand| {
-        std.debug.print("{}: {s} {}\n", .{ hand_rank, hand.hand, hand.bid });
+        //std.debug.print("{}: {s} {}\n", .{ hand_rank, hand.hand, hand.bid });
         score += hand_rank * hand.bid;
         hand_rank += 1;
     }
-    std.debug.print("Part 1 = {}\n", .{score});
+    std.debug.print("Part {s} = {}\n", .{ if (part2) "2" else "1", score });
 }
 
 pub fn main() !void {
@@ -182,9 +164,6 @@ pub fn main() !void {
         }
     }
 
-    // var index: usize = 0;
-    // while (index < 5) : (index += 1) {
-    //     std.debug.print("{}\n", .{index});
-    // }
+    try solve(if (example) fileDataEx else fileData, false);
     try solve(if (example) fileDataEx else fileData, true);
 }
