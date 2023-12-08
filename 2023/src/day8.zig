@@ -18,9 +18,10 @@ fn fill_hashmap(line: []const u8, hashmap: anytype) !void {
     if (captures != null) {
         //AAA = (BBB, CCC)
         var map = Map{ .left = undefined, .right = undefined };
+        //map.left = &captures.?.sliceAt(2).?;
         std.mem.copy(u8, &map.left, captures.?.sliceAt(2).?);
         std.mem.copy(u8, &map.right, captures.?.sliceAt(3).?);
-        var tmp: [3]u8 = undefined;
+        var tmp: [3:0]u8 = undefined;
         std.mem.copy(u8, &tmp, captures.?.sliceAt(1).?);
         //std.debug.print("map L={s}, R={s}\n", .{ map.left, map.right });
         try hashmap.put(tmp, map);
@@ -31,8 +32,8 @@ fn fill_hashmap(line: []const u8, hashmap: anytype) !void {
 }
 
 pub const Map = struct {
-    left: [3]u8,
-    right: [3]u8,
+    left: [3:0]u8,
+    right: [3:0]u8,
 };
 
 fn enchCheckP1(pos: [3]u8) bool {
@@ -43,7 +44,7 @@ fn enchCheckP2(pos: [3]u8) bool {
     return pos[2] == 'Z';
 }
 
-fn solveMap(network: *std.AutoHashMap([3]u8, Map), commands: []const u8, start: [3]u8, comptime endCheck: fn (pos: [3]u8) bool) i32 {
+fn solveMap(network: *std.AutoHashMap([3:0]u8, Map), commands: []const u8, start: [3:0]u8, comptime endCheck: fn (pos: [3]u8) bool) i32 {
     var steps: i32 = 1;
     var step_vec: usize = 0;
     var position = start;
@@ -81,7 +82,7 @@ fn solve(data: anytype) !void {
     var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
     defer arena_state.deinit();
     const allocator = arena_state.allocator();
-    var network = std.AutoHashMap([3]u8, Map).init(allocator);
+    var network = std.AutoHashMap([3:0]u8, Map).init(allocator);
     var commands: []const u8 = undefined;
     var splits = std.mem.split(u8, data, "\n\n");
     var ix: i32 = 0;
@@ -106,7 +107,7 @@ fn solve(data: anytype) !void {
     // Part 1
     var steps: i32 = 1;
     var step_vec: usize = 0;
-    var position = [_]u8{ 'A', 'A', 'A' };
+    var position = "AAA".*; //[_]u8{ 'A', 'A', 'A' };
     while (true) : (steps += 1) {
         var pos_map = network.get(position).?;
         switch (commands[step_vec]) {
@@ -121,7 +122,7 @@ fn solve(data: anytype) !void {
         }
     }
 
-    var part1 = solveMap(&network, commands, [3]u8{ 'A', 'A', 'A' }, enchCheckP1);
+    var part1 = solveMap(&network, commands, "AAA".*, enchCheckP1);
     std.debug.print("Part 1 steps = {}\n", .{part1});
     var ik = network.keyIterator();
 

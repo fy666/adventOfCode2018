@@ -166,7 +166,7 @@ fn solve(data: anytype) !void {
 pub fn main() !void {
     const argv = std.os.argv;
     var example: bool = false;
-    std.log.info("Hello day 4: {s}", .{argv});
+    std.log.info("Hello day 5: {s}", .{argv});
     for (argv) |args| {
         if (std.mem.eql(u8, args[0..2], "ex")) {
             example = true;

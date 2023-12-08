@@ -67,15 +67,14 @@ pub const Hand = struct {
         defer arena_state.deinit();
         const allocator = arena_state.allocator();
         var handClassifier = std.AutoHashMap(u8, i32).init(allocator);
-        var ih: usize = 0;
-        var numeric_hand_local: [5]u8 = [_]u8{ 0, 0, 0, 0, 0 };
-        for (hand) |c| {
+        var numeric_hand_local: [5]u8 = undefined;
+        for (hand, 0..) |c, ih| {
             // numeric hand
             var num: u8 = switch (c) {
                 'A' => 14,
                 'K' => 13,
                 'Q' => 12,
-                'J' => 11,
+                'J' => if (part2) 0 else 11,
                 'T' => 10,
                 '9' => 9,
                 '8' => 8,
@@ -88,18 +87,14 @@ pub const Hand = struct {
                 '1' => 1,
                 else => unreachable,
             };
-            if (part2 and num == 11) {
-                num = 0; // "J" now has lower priority
-            }
             numeric_hand_local[ih] = num;
-            ih += 1;
 
-            var entry = handClassifier.get(c);
-            var new_value: i32 = 1;
+            var entry = handClassifier.getPtr(c);
             if (entry != null) {
-                new_value = entry.? + 1;
+                entry.?.* += 1;
+            } else {
+                try handClassifier.put(c, 1);
             }
-            try handClassifier.put(c, new_value);
         }
 
         if (part2) {
@@ -118,14 +113,12 @@ fn cmpFunc(context: void, a: Hand, b: Hand) bool {
     if (a.rank != b.rank) {
         return a.rank < b.rank;
     }
-    var index: usize = 0;
-    while (index < 5) : (index += 1) {
+    for (0..5) |index| {
         if (a.numeric_hand[index] != b.numeric_hand[index]) {
             return a.numeric_hand[index] < b.numeric_hand[index];
         }
     }
-    return false;
-    //unreachable;
+    unreachable;
 }
 
 fn solve(data: anytype, part2: bool) !void {

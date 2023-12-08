@@ -68,7 +68,7 @@ fn solve(data: anytype, rule: cubes) !void {
 pub fn main() !void {
     const argv = std.os.argv;
     var example: bool = false;
-    std.log.info("Hello day 3: {s}", .{argv});
+    std.log.info("Hello day 2: {s}", .{argv});
     for (argv) |args| {
         if (std.mem.eql(u8, args[0..2], "ex")) {
             example = true;
