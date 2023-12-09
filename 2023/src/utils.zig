@@ -49,7 +49,7 @@ pub fn get_match(comptime T: type, line: []const u8) !?T {
     var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
     defer arena_state.deinit();
     const allocator = arena_state.allocator();
-    var re = try Regex.compile(allocator, "(\\d+)");
+    var re = try Regex.compile(allocator, "(-?\\d+)");
 
     var captures = try re.captures(line);
     var result: ?T = null;
