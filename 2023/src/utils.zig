@@ -31,12 +31,34 @@ pub const Point2D = struct {
     }
 };
 
+pub fn customEquality(a: anytype, b: anytype) bool {
+    switch (@TypeOf(a)) {
+        Point2D => return (a.x == b.x and a.y == b.y),
+        else => unreachable,
+    }
+    unreachable;
+}
+
 pub fn getDirections() [8]Point2D {
     var res: [8]Point2D = undefined;
     var index: usize = 0;
     for (0..3) |x| {
         for (0..3) |y| {
             if (x != 1 or y != 1) {
+                res[index] = Point2D.new(@as(i32, @intCast(x)) - 1, @as(i32, @intCast(y)) - 1);
+                index += 1;
+            }
+        }
+    }
+    return res;
+}
+
+pub fn get4Directions() [4]Point2D {
+    var res: [4]Point2D = undefined;
+    var index: usize = 0;
+    for (0..3) |x| {
+        for (0..3) |y| {
+            if ((x + y) % 2 == 1) {
                 res[index] = Point2D.new(@as(i32, @intCast(x)) - 1, @as(i32, @intCast(y)) - 1);
                 index += 1;
             }
