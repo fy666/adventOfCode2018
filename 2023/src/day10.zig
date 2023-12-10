@@ -9,14 +9,12 @@ const fileDataEx = @embedFile("./files/day10ex.txt");
 const Regex = @import("zig-regex").Regex;
 
 fn findStart(map: [][]const u8) Point2D {
-    std.debug.print("Map = {c}\n", .{map[0][2]});
     for (map, 0..) |item, x| {
         for (item, 0..) |c, y| {
             if (c == 'S') {
                 return Point2D.new(x, y);
             }
         }
-        //std.debug.print("{s}\n", .{item});
     }
     unreachable;
 }
@@ -39,17 +37,15 @@ fn solve(data: anytype) !void {
     defer arena_state.deinit();
     const allocator = arena_state.allocator();
     var len: usize = 1;
-    for (data) |c| {
-        if (c == '\n') {
-            len += 1;
-        }
+    var splitsLines = std.mem.split(u8, data, "\n");
+    while (splitsLines.next()) |_| {
+        len += 1;
     }
 
     var map: [][]const u8 = undefined;
     var map2: [][]u8 = undefined;
     map = try allocator.alloc([]const u8, len);
     map2 = try allocator.alloc([]u8, len);
-    std.debug.print("Type = {s}, len = {}\n", .{ @typeName(@TypeOf(map)), map.len });
     var splits = std.mem.split(u8, data, "\n");
     for (map, 0..) |_, i| {
         map[i] = splits.next() orelse unreachable;

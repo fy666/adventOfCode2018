@@ -6,10 +6,13 @@ const fileData = @embedFile("./files/day9.txt");
 const fileDataEx = @embedFile("./files/day9ex.txt");
 
 fn diff(data: *std.ArrayList(i64)) void {
-    //std.debug.print("Type of data = {s}\n", .{@typeName(@TypeOf(data))});
-    for (0..data.items.len - 1) |ix| {
-        data.items[ix] = data.items[ix + 1] - data.items[ix];
+    var window = std.mem.window(i64, data.items, 2, 1);
+    var ix: usize = 0;
+    while (window.next()) |it| : (ix += 1) {
+        //std.debug.print("{} {any}\n", .{ ix, it });
+        data.items[ix] = it[1] - it[0];
     }
+
     _ = data.pop();
 }
 
