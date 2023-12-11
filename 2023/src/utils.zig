@@ -17,6 +17,10 @@ pub const Point2D = struct {
         return Point2D{ .x = self.x + other.x, .y = self.y + other.y };
     }
 
+    pub fn getManhattanDistance(self: *const Point2D, other: *const Point2D) i32 {
+        return @intCast(@abs(self.x - other.x) + @abs(self.y - other.y));
+    }
+
     pub fn getX(self: *const Point2D, max_bound: usize) !usize {
         if (self.x < 0 or self.x >= max_bound) {
             return MyErr.OusideMatrix;
