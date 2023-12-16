@@ -88,7 +88,7 @@ pub fn get_match(comptime T: type, line: []const u8) !?T {
 }
 
 pub fn get_all_numbers(comptime T: type, line: []const u8, values: *std.ArrayList(T)) !void {
-    var split_numbers = std.mem.split(u8, line, " ");
+    var split_numbers = std.mem.splitAny(u8, line, " ,");
     while (split_numbers.next()) |num_str| {
         var res = try get_match(T, num_str);
         if (res != null) {
