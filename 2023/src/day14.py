@@ -57,9 +57,9 @@ def main():
     parser.add_argument("--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help="Set the logging level", default="WARNING")
     args = parser.parse_args()
-    file = "day14.txt"
+    file = "./src/files/day14.txt"
     if args.ex:
-        file = "day14ex.txt"
+        file = "./src/files/day14ex.txt"
 
     map = []
     corr = {'O': 1, '#': 2, ".": 0}
