@@ -9,7 +9,11 @@ pub const Point2D = struct {
         switch (@TypeOf(x)) {
             i32 => return Point2D{ .x = x, .y = y },
             usize => return Point2D{ .x = @intCast(x), .y = @intCast(y) },
-            else => unreachable,
+            comptime_int => return Point2D{ .x = @intCast(x), .y = @intCast(y) },
+            else => {
+                std.debug.print("Type of data = {s}\n", .{@typeName(@TypeOf(x))});
+                unreachable;
+            },
         }
     }
 

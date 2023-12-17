@@ -127,7 +127,7 @@ fn solve(data: anytype) !void {
         try utils.get_all_numbers(i32, split_line.next().?, &groups);
         var combi_hash = std.StringHashMap(i64).init(allocator);
         var ic: i64 = try get_combi(record, groups, &combi_hash);
-        std.debug.print("{s} (any) -> PART 1 = {} possibilities\n", .{ record, groups, ic });
+        std.debug.print("{s} {any} -> PART 1 = {} possibilities\n", .{ record, groups, ic });
 
         timer.reset();
         var records_p2 = try get_part2_inputs(record);
