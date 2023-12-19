@@ -5,10 +5,9 @@ const utils = @import("./utils.zig");
 const fileData = @embedFile("./files/day12.txt");
 const fileDataEx = @embedFile("./files/day12ex.txt");
 
-fn get_combi(input: []const u8, groups: std.ArrayList(i32), hash: *std.StringHashMap(i64)) !i64 {
-    var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
-    defer arena_state.deinit();
-    const allocator = arena_state.allocator();
+const Allocator = std.mem.Allocator;
+
+fn get_combi(input: []const u8, groups: std.ArrayList(i32), allocator: Allocator, hash: *std.StringHashMap(i64)) !i64 {
     const hash_input = try std.fmt.allocPrint(
         allocator,
         "{s} {any}",
@@ -17,14 +16,10 @@ fn get_combi(input: []const u8, groups: std.ArrayList(i32), hash: *std.StringHas
     if (hash.contains(hash_input) == true) {
         return hash.get(hash_input).?;
     }
-    //std.debug.print("GET COMBI {s} and {any} \n", .{ input, groups.items });
     if (groups.items.len == 0) {
         if (std.mem.count(u8, input, "#") == 0) {
-            //std.debug.print("Found a valid comb\n", .{});
-            //try hash.put(hash_input, 1);
             return 1;
         }
-        //try hash.put(hash_input, 0);
         return 0;
     }
 
@@ -35,21 +30,18 @@ fn get_combi(input: []const u8, groups: std.ArrayList(i32), hash: *std.StringHas
 
     // Impossible to go further
     if (std.mem.count(u8, input, "#") + std.mem.count(u8, input, "?") < num_hash) {
-        //std.debug.print("This combination cannot be correct, abort\n", .{});
-        //try hash.put(hash_input, 0);
         return 0;
     }
 
     if (input[0] == '.') {
-        var res = try get_combi(input[1..], groups, hash);
-        //try hash.put(hash_input, res);
+        var res = try get_combi(input[1..], groups, allocator, hash);
         return res;
     }
 
     var possibilities: i64 = 0;
 
     if (input[0] == '?') {
-        possibilities += try get_combi(input[1..], groups, hash);
+        possibilities += try get_combi(input[1..], groups, allocator, hash);
     }
 
     // Try to add first group
@@ -69,7 +61,7 @@ fn get_combi(input: []const u8, groups: std.ArrayList(i32), hash: *std.StringHas
                 var new_group = try groups.clone(); // create copy
                 _ = new_group.orderedRemove(0);
                 //std.debug.print("{s} and {any} -> First group found, continue\n", .{ input, groups.items });
-                possibilities += try get_combi(input[(end_of_group_index + 1)..], new_group, hash);
+                possibilities += try get_combi(input[(end_of_group_index + 1)..], new_group, allocator, hash);
             }
         }
     }
@@ -119,6 +111,7 @@ fn solve(data: anytype) !void {
     var part2: i64 = 0;
 
     var timer = try std.time.Timer.start();
+    _ = timer;
     //timer.start();
     while (splits.next()) |line| : (il += 1) {
         var groups = std.ArrayList(i32).init(allocator);
@@ -126,21 +119,21 @@ fn solve(data: anytype) !void {
         var record = split_line.first();
         try utils.get_all_numbers(i32, split_line.next().?, &groups);
         var combi_hash = std.StringHashMap(i64).init(allocator);
-        var ic: i64 = try get_combi(record, groups, &combi_hash);
-        std.debug.print("{s} {any} -> PART 1 = {} possibilities\n", .{ record, groups, ic });
+        var ic: i64 = try get_combi(record, groups, allocator, &combi_hash);
+        //std.debug.print("{s} {any} -> PART 1 = {} possibilities\n", .{ record, groups, ic });
 
-        timer.reset();
+        //timer.reset();
         var records_p2 = try get_part2_inputs(record);
-        std.debug.print("P1 {} ns\n", .{timer.lap()});
+        //std.debug.print("P1 {} ns\n", .{timer.lap()});
         var groups_p2 = try get_part2_groups(groups);
-        timer.reset();
-        //combi_hash.clearRetainingCapacity();
-        var combi_hash2 = std.StringHashMap(i64).init(allocator);
-        std.debug.print("PART 2 = {s} ({any}) -> {} possibilities \n-----------------------\n", .{ records_p2, groups_p2.items, 0 });
+        //timer.reset();
+        combi_hash.clearRetainingCapacity();
+        //var combi_hash2 = std.StringHashMap(i64).init(allocator);
+        //std.debug.print("PART 2 = {s} ({any}) -> {} possibilities \n-----------------------\n", .{ records_p2, groups_p2.items, 0 });
 
-        var ic2: i64 = try get_combi(records_p2, groups_p2, &combi_hash2);
-        std.debug.print("P2 {} ns\n", .{timer.lap()});
-        std.debug.print("PART 2 = {s} ({any}) -> {} possibilities \n-----------------------\n", .{ records_p2, groups_p2.items, ic2 });
+        var ic2: i64 = try get_combi(records_p2, groups_p2, allocator, &combi_hash);
+        //std.debug.print("P2 {} ns\n", .{timer.lap()});
+        //std.debug.print("PART 2 = {s} ({any}) -> {} possibilities \n-----------------------\n", .{ records_p2, groups_p2.items, ic2 });
         part1 += ic;
         part2 += ic2;
     }
@@ -158,18 +151,6 @@ pub fn main() !void {
             example = true;
         }
     }
-    // var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
-    // defer arena_state.deinit();
-    // const allocator = arena_state.allocator();
-    // var groups = std.ArrayList(i32).init(allocator);
-    // try groups.append(42);
-    // try groups.append(10);
-    // std.debug.print("BEFORE {any}\n", .{groups.items});
-    // try test_arg(groups);
-    // std.debug.print("AFTER {any}\n", .{groups.items});
-    // std.debug.print("{s}\n", .{try get_part2_inputs(".##")});
-    // var g2 = try get_part2_groups(groups);
-    // std.debug.print("{any}\n", .{g2.items});
     var timer = try std.time.Timer.start();
     try solve(if (example) fileDataEx else fileData);
     var dt: f32 = @floatFromInt(timer.lap());
