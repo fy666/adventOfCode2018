@@ -2,21 +2,21 @@ import argparse
 import queue
 import copy
 import re
-
+import math
 # False -> low / off
 # True -> high / on
 
 # Need to rewritte conjonction !!! check state from ALL outputs !!
 
 
-def push_once(routing, first_cmd, part2=False):
+def push_once(routing, first_cmd, part2=None):
 
     modules_to_process = queue.Queue()
     modules_to_process.put(first_cmd)
     pulse_counter = [0, 0]
     while not modules_to_process.empty():
         item, signal, prev = modules_to_process.get()
-        if part2 and item == "rx" and not signal:
+        if part2 is not None and (item, signal, prev) == part2:
             return True
         #print(f"{prev} -> {signal} -> {item}")
         if signal:
@@ -44,6 +44,15 @@ def push_once(routing, first_cmd, part2=False):
         return False
     return pulse_counter
 
+
+def run_until(routing, stop_condition):
+    local_routing = copy.deepcopy(routing)
+    index = 0
+    p = False
+    while(not p):
+        p = push_once(local_routing, ("broadcaster", False, "button"), part2=stop_condition)
+        index+=1
+    return index
 
 def main():
     parser = argparse.ArgumentParser(description="Day20")
@@ -95,13 +104,14 @@ def main():
     print(f"{res} pulses")
     print(res[0]*res[1])
 
-    
-    index = 0
-    p = False
-    while(not p):
-        p = push_once(routing_part2, ("broadcaster", False, "button"), part2=True)
-        index+=1
-    print(f"Part 2 {index} pulses")
+    print(routing_part2["lx"]["inputs"])
+    sub = []
+    for c in routing_part2["lx"]["inputs"]:
+        s = run_until(routing_part2, ("lx", True, c ))
+        print(s)
+        sub.append(s)
+    part2_res = math.lcm(*sub)
+    print(f"Part 2 {part2_res} pushes")
     
 
 
