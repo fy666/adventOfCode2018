@@ -4,6 +4,8 @@ import copy
 import re
 import math
 import numpy as np
+from collections import deque
+import time
 
 
 def add(a, b):
@@ -21,21 +23,36 @@ def infinitePos(pos, map_shape):
     return (pos[0] % map_shape[0], pos[1] % map_shape[1])
 
 
-def solve(garden, max_step, infinite_map):
+def solve(garden, max_step, infinite_map, use_queue=False):
     tmp = np.where(garden == 2)
     start_pos = (tmp[0][0], tmp[1][0])
     # print(f"Start pos at {start_pos}, garden shape of {garden.shape}")
 
     item = (start_pos, 0)
     visited_pos = {}
-    items = queue.Queue()
-    items.put(item)
+    if use_queue:
+        items = queue.Queue()
+    else:
+        items = deque()
+
+    if use_queue:
+        items.put(item)
+    else:
+        items.append(item)
 
     # count_possibilities = set()
     count_possibilities = 0
+    if use_queue:
+        def x(s): return not s.empty()
+    else:
+        def x(s): return len(s) > 0
 
-    while not items.empty():
-        curr, steps = items.get()
+    while x(items):
+        if use_queue:
+            curr, steps = items.get()
+        else:
+            curr, steps = items.popleft()
+
         if steps == max_step:
             count_possibilities += 1
             # count_possibilities.add(curr)
@@ -49,7 +66,10 @@ def solve(garden, max_step, infinite_map):
                 continue
             if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
                 visited_pos[new_pos] = steps
-                items.put((new_pos, steps))
+                if use_queue:
+                    items.put((new_pos, steps))
+                else:
+                    items.append((new_pos, steps))
     return count_possibilities  # len(count_possibilities)
 
 
@@ -71,11 +91,19 @@ def main():
     # print(garden)
     garden = np.array(garden)
 
+    t = time.time()
     print(
-        f"Part 1: {solve(garden, 6 if args.ex else 64, infinite_map=False)} steps")
+        f"Part 1: {solve(garden, 6 if args.ex else 64, infinite_map=False)} steps ({time.time()-t} s)")
+    t = time.time()
+    print(
+        f"Part 1 (queue): {solve(garden, 6 if args.ex else 64, infinite_map=False, use_queue=True)} steps ({time.time()-t} s)")
 
+    t = time.time()
     print(
-        f"Part 2: {solve(garden, 50 if args.ex else 26501365, infinite_map=True)} steps")
+        f"Part 2: {solve(garden, 50 if args.ex else 26501365, infinite_map=True)} steps ({time.time()-t} s)")
+    t = time.time()
+    print(
+        f"Part 2 (queue): {solve(garden, 50 if args.ex else 26501365, infinite_map=True, use_queue=True)} steps ({time.time()-t} s)")
 
 
 if __name__ == "__main__":
