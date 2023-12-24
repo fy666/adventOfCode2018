@@ -23,54 +23,33 @@ def infinitePos(pos, map_shape):
     return (pos[0] % map_shape[0], pos[1] % map_shape[1])
 
 
-def solve(garden, max_step, infinite_map, use_queue=False):
-    tmp = np.where(garden == 2)
-    start_pos = (tmp[0][0], tmp[1][0])
-    # print(f"Start pos at {start_pos}, garden shape of {garden.shape}")
+def solve(garden, max_step, start_pos):
+    # tmp = np.where(garden == 2)
+    # start_pos = (tmp[0][0], tmp[1][0])
+    print(f"Start pos at {start_pos}, max steps = {max_step}, garden shape of {garden.shape}")
 
     item = (start_pos, 0)
     visited_pos = {}
-    if use_queue:
-        items = queue.Queue()
-    else:
-        items = deque()
 
-    if use_queue:
-        items.put(item)
-    else:
-        items.append(item)
+    items = [item]
+    count_possibilities = set()
 
-    # count_possibilities = set()
-    count_possibilities = 0
-    if use_queue:
-        def x(s): return not s.empty()
-    else:
-        def x(s): return len(s) > 0
-
-    while x(items):
-        if use_queue:
-            curr, steps = items.get()
-        else:
-            curr, steps = items.popleft()
-
+    while len(items) > 0:
+        curr, steps = items.pop()
         if steps == max_step:
-            count_possibilities += 1
-            # count_possibilities.add(curr)
+            count_possibilities.add(curr)
             continue
         steps += 1
         for dir in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             new_pos = add(curr, dir)
-            if not infinite_map and outOfBounds(new_pos, garden.shape):
+            if outOfBounds(new_pos, garden.shape):
                 continue
-            if garden[infinitePos(new_pos, garden.shape)] == 1:
+            if garden[new_pos] == 1:
                 continue
-            if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
-                visited_pos[new_pos] = steps
-                if use_queue:
-                    items.put((new_pos, steps))
-                else:
-                    items.append((new_pos, steps))
-    return count_possibilities  # len(count_possibilities)
+            # if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
+            #     visited_pos[new_pos] = steps
+            items.append((new_pos, steps))
+    return len(count_possibilities)
 
 
 def main():
@@ -90,20 +69,23 @@ def main():
             garden.append(np.array([corr[x] for x in line.strip()]))
     # print(garden)
     garden = np.array(garden)
+    tmp = np.where(garden == 2)
+    start_pos = (tmp[0][0], tmp[1][0])
 
     t = time.time()
     print(
-        f"Part 1: {solve(garden, 6 if args.ex else 64, infinite_map=False)} steps ({time.time()-t} s)")
-    t = time.time()
-    print(
-        f"Part 1 (queue): {solve(garden, 6 if args.ex else 64, infinite_map=False, use_queue=True)} steps ({time.time()-t} s)")
+        f"Part 1: {solve(garden, 6 if args.ex else 64, start_pos)} steps ({time.time()-t} s)")
+    return
 
-    t = time.time()
-    print(
-        f"Part 2: {solve(garden, 50 if args.ex else 26501365, infinite_map=True)} steps ({time.time()-t} s)")
-    t = time.time()
-    print(
-        f"Part 2 (queue): {solve(garden, 50 if args.ex else 26501365, infinite_map=True, use_queue=True)} steps ({time.time()-t} s)")
+    N = 26501365
+    # t = time.time()
+    # print(
+    #     f"Part 2: {solve(garden, 50 if args.ex else 26501365, infinite_map=True)} steps ({time.time()-t} s)")
+    for N in [65, 65+131, 65+2*131]:
+        print(N)
+        t = time.time()
+        print(
+            f"Part 2 {N}: {solve(garden, N, infinite_map=True, use_queue=False)} steps ({time.time()-t} s)")
 
 
 if __name__ == "__main__":
