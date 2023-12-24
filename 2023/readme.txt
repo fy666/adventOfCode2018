@@ -37,6 +37,7 @@ Description of problems:
 -day21 (reachable tiles, repetition patter)
 -day22 (cubes pile)
 -day23 (longest trail, graph reduction)
+-day24 (line intersection, matrix equation solving)
 
 
 Zig
@@ -57,9 +58,10 @@ Zig
 -day15 (lens box, compute focusing power) ✅
 -day16 (light beams)
 -day17 (shortest path with engine steering constraints (max 3 consecutive steps in same direction, part2 at least 4 before turning)) ✅
--day18 (contour area computing for segments)
+-day18 (contour area computing for segments) ✅
 -day19 (xmas intervals chain)
 -day20 (signals)
 -day21 (reachable tiles, repetition patter)
 -day22 (cubes pile)
 -day23 (longest trail, graph reduction)
+-day24 (line intersection, matrix equation solving)
