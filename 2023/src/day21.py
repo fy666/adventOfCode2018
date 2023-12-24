@@ -23,21 +23,22 @@ def infinitePos(pos, map_shape):
     return (pos[0] % map_shape[0], pos[1] % map_shape[1])
 
 
-def solve(garden, max_step, start_pos):
+def solve(garden, start, nsteps):
     # tmp = np.where(garden == 2)
     # start_pos = (tmp[0][0], tmp[1][0])
-    print(f"Start pos at {start_pos}, max steps = {max_step}, garden shape of {garden.shape}")
+    print(
+        f"Start pos at {start}, max steps = {nsteps}, garden shape of {garden.shape}")
 
-    item = (start_pos, 0)
+    item = (start, 0)
     visited_pos = {}
     items = deque()
     items.append(item)
     count_possibilities = set()
 
     while len(items) > 0:
-        
+
         curr, steps = items.popleft()
-        if steps == max_step:
+        if steps == nsteps:
             count_possibilities.add(curr)
             continue
         steps += 1
@@ -68,25 +69,73 @@ def main():
     with open(file, "r") as f:
         for il, line in enumerate(f.readlines()):
             garden.append(np.array([corr[x] for x in line.strip()]))
-    
+
     garden = np.array(garden)
     tmp = np.where(garden == 2)
     start_pos = (tmp[0][0], tmp[1][0])
 
     t = time.time()
     print(
-        f"Part 1: {solve(garden, 6 if args.ex else 64, start_pos)} steps ({time.time()-t} s)")
-    return
+        f"Part 1: {solve(garden,start=start_pos, nsteps= 6 if args.ex else 64)} steps ({time.time()-t} s)")
 
-    N = 26501365
-    # t = time.time()
-    # print(
-    #     f"Part 2: {solve(garden, 50 if args.ex else 26501365, infinite_map=True)} steps ({time.time()-t} s)")
-    for N in [65, 65+131, 65+2*131]:
-        print(N)
-        t = time.time()
-        print(
-            f"Part 2 {N}: {solve(garden, N, infinite_map=True, use_queue=False)} steps ({time.time()-t} s)")
+    # Part 2: stolen from Reddit... =_='
+    # https://github.com/marcodelmastro/AdventOfCode2023/blob/main/Day21.ipynb
+
+    gridsize = garden.shape[0]  # gridsize
+    halfgrid = gridsize//2  # halfgrid
+    print(gridsize, halfgrid)
+
+    # fully filled grids
+    plots_oddsteps = solve(garden, start=(
+        halfgrid, halfgrid), nsteps=3*gridsize)  # center
+    plots_evensteps = solve(garden, start=(
+        halfgrid, halfgrid), nsteps=2*gridsize)  # cross around center
+    # diamonds extremes
+    plots_corner_top = solve(garden, start=(0, halfgrid), nsteps=gridsize-1)
+    plots_corner_bot = solve(garden, start=(
+        gridsize-1, halfgrid), nsteps=gridsize-1)
+    plots_corner_lef = solve(garden, start=(halfgrid,  0), nsteps=gridsize-1)
+    plots_corner_rig = solve(garden, start=(
+        halfgrid, gridsize-1), nsteps=gridsize-1)
+    # smaller lateral gridsstart_pos
+    plots_side_lef_bot_small = solve(
+        garden, start=(gridsize-1,  0), nsteps=halfgrid-1)
+    plots_side_rig_bot_small = solve(garden, start=(0,  0), nsteps=halfgrid-1)
+    plots_side_lef_top_small = solve(garden, start=(
+        gridsize-1, gridsize-1), nsteps=halfgrid-1)
+    plots_side_rig_top_small = solve(
+        garden, start=(0, gridsize-1), nsteps=halfgrid-1)
+    # larger lateral grids
+    plots_side_lef_bot_big = solve(garden, start=(
+        gridsize-1,  0), nsteps=gridsize+halfgrid-1)
+    plots_side_rig_bot_big = solve(
+        garden, start=(0,  0), nsteps=gridsize+halfgrid-1)
+    plots_side_lef_top_big = solve(garden, start=(
+        gridsize-1, gridsize-1), nsteps=gridsize+halfgrid-1)
+    plots_side_rig_top_big = solve(garden, start=(
+        0, gridsize-1), nsteps=gridsize+halfgrid-1)
+
+    nsteps = 26501365
+
+    romboid_width = (nsteps - 65) // 131
+
+    nfull_odd = (romboid_width//2*2 - 1) ** 2
+    nfull_even = (romboid_width//2*2) ** 2
+
+    nodd = plots_oddsteps
+    neven = plots_evensteps
+
+    ncorners = plots_corner_top+plots_corner_bot+plots_corner_lef+plots_corner_rig
+    nsides_small = plots_side_lef_bot_small+plots_side_rig_bot_small + \
+        plots_side_lef_top_small+plots_side_rig_top_small
+    nsides_large = plots_side_lef_bot_big + plots_side_lef_top_big + \
+        plots_side_rig_bot_big+plots_side_rig_top_big
+
+    total = nfull_odd*nodd + nfull_even*neven + romboid_width * \
+        nsides_small + (romboid_width-1)*nsides_large + ncorners
+
+    print("Part 2=", total)
+    # Correct ans = 609012263058042
 
 
 if __name__ == "__main__":
