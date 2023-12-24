@@ -30,12 +30,13 @@ def solve(garden, max_step, start_pos):
 
     item = (start_pos, 0)
     visited_pos = {}
-
-    items = [item]
+    items = deque()
+    items.append(item)
     count_possibilities = set()
 
     while len(items) > 0:
-        curr, steps = items.pop()
+        
+        curr, steps = items.popleft()
         if steps == max_step:
             count_possibilities.add(curr)
             continue
@@ -46,9 +47,9 @@ def solve(garden, max_step, start_pos):
                 continue
             if garden[new_pos] == 1:
                 continue
-            # if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
-            #     visited_pos[new_pos] = steps
-            items.append((new_pos, steps))
+            if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
+                visited_pos[new_pos] = steps
+                items.append((new_pos, steps))
     return len(count_possibilities)
 
 
@@ -67,7 +68,7 @@ def main():
     with open(file, "r") as f:
         for il, line in enumerate(f.readlines()):
             garden.append(np.array([corr[x] for x in line.strip()]))
-    # print(garden)
+    
     garden = np.array(garden)
     tmp = np.where(garden == 2)
     start_pos = (tmp[0][0], tmp[1][0])
