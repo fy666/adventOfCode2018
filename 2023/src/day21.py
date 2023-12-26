@@ -6,6 +6,7 @@ import math
 import numpy as np
 from collections import deque
 import time
+import logging
 
 
 def add(a, b):
@@ -23,35 +24,31 @@ def infinitePos(pos, map_shape):
     return (pos[0] % map_shape[0], pos[1] % map_shape[1])
 
 
-def solve(garden, start, nsteps):
-    # tmp = np.where(garden == 2)
-    # start_pos = (tmp[0][0], tmp[1][0])
-    print(
-        f"Start pos at {start}, max steps = {nsteps}, garden shape of {garden.shape}")
-
+def solve(garden, start, nsteps, infiniteMap=False):
+    t = time.time()
     item = (start, 0)
     visited_pos = {}
     items = deque()
     items.append(item)
-    count_possibilities = set()
 
     while len(items) > 0:
-
         curr, steps = items.popleft()
-        if steps == nsteps:
-            count_possibilities.add(curr)
-            continue
         steps += 1
         for dir in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             new_pos = add(curr, dir)
-            if outOfBounds(new_pos, garden.shape):
+            if not infiniteMap and outOfBounds(new_pos, garden.shape):
                 continue
-            if garden[new_pos] == 1:
+            if garden[infinitePos(new_pos, garden.shape)] == 1:
                 continue
-            if (new_pos in visited_pos and visited_pos[new_pos] < steps) or (new_pos not in visited_pos):
+            if steps > nsteps:
+                continue
+            if new_pos not in visited_pos:
                 visited_pos[new_pos] = steps
                 items.append((new_pos, steps))
-    return len(count_possibilities)
+    ans = len([x for x in visited_pos.values() if x % 2 == 0])
+    logging.debug(
+        f"Start pos at {start}, max steps = {nsteps} : {ans} possibilities ({time.time()-t} s)")
+    return ans
 
 
 def main():
@@ -60,6 +57,10 @@ def main():
     parser.add_argument("--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help="Set the logging level", default="WARNING")
     args = parser.parse_args()
+
+    logging.basicConfig(level=args.logLevel,
+                        format='%(levelname)s: %(message)s')
+                        
     file = "./src/files/day21.txt"
     if args.ex:
         file = "./src/files/day21ex.txt"
@@ -74,16 +75,18 @@ def main():
     tmp = np.where(garden == 2)
     start_pos = (tmp[0][0], tmp[1][0])
 
-    t = time.time()
     print(
-        f"Part 1: {solve(garden,start=start_pos, nsteps= 6 if args.ex else 64)} steps ({time.time()-t} s)")
+        f"Part 1 = {solve(garden,start=start_pos, nsteps= 6 if args.ex else 64)}")
 
     # Part 2: stolen from Reddit... =_='
     # https://github.com/marcodelmastro/AdventOfCode2023/blob/main/Day21.ipynb
-
+    if args.ex:
+        for s in [50, 100, 500 , 1000]:
+            print(
+        f"Part 2, {s} steps = {solve(garden,start=start_pos, nsteps=s, infiniteMap=True)}")
+        return
     gridsize = garden.shape[0]  # gridsize
     halfgrid = gridsize//2  # halfgrid
-    print(gridsize, halfgrid)
 
     # fully filled grids
     plots_oddsteps = solve(garden, start=(
@@ -134,7 +137,7 @@ def main():
     total = nfull_odd*nodd + nfull_even*neven + romboid_width * \
         nsides_small + (romboid_width-1)*nsides_large + ncorners
 
-    print("Part 2=", total)
+    print(f"Part 2 = {total}")
     # Correct ans = 609012263058042
 
 
