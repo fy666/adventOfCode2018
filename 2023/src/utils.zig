@@ -102,3 +102,11 @@ pub fn get_all_numbers(comptime T: type, line: []const u8, values: *std.ArrayLis
     }
     //std.debug.print("{s} -> {any} \n", .{ line, values.items });
 }
+
+pub fn sum(comptime T: type, data: []T) T {
+    var res: T = 0;
+    for (data) |x| {
+        res += x;
+    }
+    return res;
+}

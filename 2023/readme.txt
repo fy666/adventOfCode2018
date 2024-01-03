@@ -54,16 +54,16 @@ Zig
 -day10 (loop path in a map, find enclosed area) ✅
 -day11 (expanding map with empty lines/columns) ✅
 -day12 (find combinations of groups of # in a string) ✅
--day13 (find symmetry of a matrix, find "almost" symmetry -> difference of one) ⏸️
--day14 (rocks moving on map with obstacles, in each directions) ⏸️
+-day13 (find symmetry of a matrix, find "almost" symmetry -> difference of one) ❌
+-day14 (rocks moving on map with obstacles, in each directions) ❌
 -day15 (lens box, compute focusing power) ✅
 -day16 (light beams)
 -day17 (shortest path with engine steering constraints (max 3 consecutive steps in same direction, part2 at least 4 before turning)) ✅
 -day18 (contour area computing for segments) ✅
--day19 (xmas intervals chain)
+-day19 (xmas intervals chain) ✅
 -day20 (signals)
 -day21 (reachable tiles, repetition patter)
 -day22 (cubes pile)
 -day23 (longest trail, graph reduction)
--day24 (line intersection, matrix equation solving)
--day25 (cut a graph, networkx)
+-day24 (line intersection, matrix equation solving) ⏸️
+-day25 (cut a graph, networkx) ⏸️
