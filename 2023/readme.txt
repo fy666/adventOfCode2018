@@ -57,7 +57,7 @@ Zig
 -day13 (find symmetry of a matrix, find "almost" symmetry -> difference of one) ❌
 -day14 (rocks moving on map with obstacles, in each directions) ❌
 -day15 (lens box, compute focusing power) ✅
--day16 (light beams)
+-day16 (light beams) ✅
 -day17 (shortest path with engine steering constraints (max 3 consecutive steps in same direction, part2 at least 4 before turning)) ✅
 -day18 (contour area computing for segments) ✅
 -day19 (xmas intervals chain) ✅
@@ -67,3 +67,7 @@ Zig
 -day23 (longest trail, graph reduction)
 -day24 (line intersection, matrix equation solving) ⏸️
 -day25 (cut a graph, networkx) ⏸️
+
+Current status: 17/25
+Won't do: 2
+Corrected status: 17/23, 6 left
