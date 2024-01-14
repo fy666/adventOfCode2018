@@ -50,7 +50,7 @@ def run_until(routing, stop_condition):
     index = 0
     p = False
     while(not p):
-        p = push_once(local_routing, ("broadcaster", False, "button"), part2=stop_condition)
+        p = push_once(local_routing, ("broadcaster", False, "button"), part2=stop_condition)   
         index+=1
     return index
 
@@ -108,8 +108,9 @@ def main():
     sub = []
     for c in routing_part2["lx"]["inputs"]:
         s = run_until(routing_part2, ("lx", True, c ))
-        print(s)
+        print(f"{c} after {s}")
         sub.append(s)
+    print(sub)
     part2_res = math.lcm(*sub)
     print(f"Part 2 {part2_res} pushes")
     

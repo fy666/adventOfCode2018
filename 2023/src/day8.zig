@@ -64,20 +64,6 @@ fn solveMap(network: *std.AutoHashMap([3:0]u8, Map), commands: []const u8, start
     return steps;
 }
 
-fn gcd(a: i64, b: i64) i64 {
-    if (b == 0)
-        return a;
-    return gcd(b, @rem(a, b));
-}
-
-fn lcm(a: i64, b: i64) i64 {
-    if (a > b) {
-        return @divExact(a, gcd(a, b)) * b;
-    } else {
-        return @divExact(b, gcd(a, b)) * a;
-    }
-}
-
 fn solve(data: anytype) !void {
     var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
     defer arena_state.deinit();
@@ -132,7 +118,7 @@ fn solve(data: anytype) !void {
             //std.debug.print("{s}\n", .{key});
             var tmpSolve = solveMap(&network, commands, key.*, enchCheckP2);
 
-            lcm_var = lcm(lcm_var, tmpSolve);
+            lcm_var = utils.lcm(lcm_var, tmpSolve);
             std.debug.print("Part 2 {s} steps = {}, lcm = {}\n", .{ key, tmpSolve, lcm_var });
         }
     }

@@ -110,3 +110,17 @@ pub fn sum(comptime T: type, data: []T) T {
     }
     return res;
 }
+
+pub fn gcd(a: i64, b: i64) i64 {
+    if (b == 0)
+        return a;
+    return gcd(b, @rem(a, b));
+}
+
+pub fn lcm(a: i64, b: i64) i64 {
+    if (a > b) {
+        return @divExact(a, gcd(a, b)) * b;
+    } else {
+        return @divExact(b, gcd(a, b)) * a;
+    }
+}
