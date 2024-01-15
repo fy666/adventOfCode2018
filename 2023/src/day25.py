@@ -86,6 +86,9 @@ def main():
                 connexions += 1
 
     print(f"{len(nodes)} nodes, {connexions} connexions")
+    a = walktrough(graph, list(graph.keys())[0], [])
+    print(f"First graph walkthrough = {a}")
+
 
     # Use networkx to vizualize graph, note the 3 connexions to cut
     # vizualize(graph, nodes)
@@ -102,6 +105,7 @@ def main():
         if len(sizes) == 2:
             break
     s = list(sizes)
+    print(s)
     ans = s[0]*s[1]
     msg = "correct" if ans == good_answer else "incorrect"
     print(f"Part 1 = {ans}: ({msg})")

@@ -66,8 +66,8 @@ Zig
 -day22 (cubes pile)
 -day23 (longest trail, graph reduction)
 -day24 (line intersection, matrix equation solving) ⏸️
--day25 (cut a graph, networkx) ⏸️
+-day25 (cut a graph, networkx) ✅ ⏸️
 
-Current status: 18/25
+Current status: 19/25
 Won't do: 2
-Corrected status: 18/23, 5 left
+Corrected status: 19/23, 4 left
