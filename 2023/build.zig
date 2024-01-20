@@ -39,8 +39,8 @@ pub fn build(b: *std.Build) void {
     //const regex = b.addModule("ctregex", .{ .source_file = .{ .path = "libs/ctregex.zig/ctregex.zig" } });
     const regex2 = b.addModule("zig-regex", .{ .source_file = .{ .path = "libs/zig-regex/src/regex.zig" } });
 
-    //const days = [_][]const u8{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "15", "17" };
-    const days = [_][]const u8{ "16", "12", "17", "18", "19", "20", "25", "22" };
+    //const days = [_][]const u8{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "15", "16", "17", "18", "19", "20", "22", "23" };
+    const days = [_][]const u8{"23"};
     inline for (days) |day| {
         const exe2 = b.addExecutable(.{
             .name = "day" ++ day,
