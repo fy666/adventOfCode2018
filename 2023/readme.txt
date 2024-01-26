@@ -65,7 +65,7 @@ Zig
 -day21 (reachable tiles, repetition pattern) ⏸️
 -day22 (cubes pile) ✅
 -day23 (longest trail, graph reduction) ✅
--day24 (line intersection, matrix equation solving) ⏸️
+-day24 (line intersection, matrix equation solving) ✅⏸️
 -day25 (cut a graph, networkx) ✅ ⏸️
 
 Current status: 21/25

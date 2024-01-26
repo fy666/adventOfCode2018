@@ -8,21 +8,19 @@ const fileDataEx = @embedFile("./files/day24ex.txt");
 const Regex = @import("zig-regex").Regex;
 
 const Allocator = std.mem.Allocator;
-fn line_intersect(comptime T: type, x1: T, y1: T, x2: T, y2: T) bool {
-    if (x1 >= x2 and y1 <= y2) {
-        return true;
+
+fn solve2x2(a: f64, b: f64, c: f64, d: f64, e: f64, f: f64) ?[2]f64 {
+    //std.debug.print("Solving:\n {} {} | t0 | {} \n {} {} | t1 | {} \n", .{ a, b, e, c, d, f });
+    var det = (a * d) - (b * c);
+    if (det == 0) {
+        return null;
     }
-    if (x2 >= x1 and y2 <= y1) {
-        return true;
-    }
-    if (x1 <= y2 and y1 >= y2) {
-        return true;
-    }
-    if (x2 <= y1 and y2 >= y1) {
-        return true;
-    }
-    return false;
+    var ans = [2]f64{ 0, 0 };
+    ans[0] = (d * e - b * f) / det;
+    ans[1] = (-c * e + a * f) / det;
+    return ans;
 }
+
 const Stone = struct {
     name: []const u8,
     pos: [3]i64,
@@ -32,12 +30,23 @@ const Stone = struct {
         return Stone{ .name = name, .pos = [3]i64{ 0, 0, 0 }, .speed = [3]i64{ 0, 0, 0 } };
     }
 
-    pub fn intersect(self: Stone, other: Stone) bool {
-        _ = other;
-        _ = self;
-        //TODO
-        return true;
-        //return line_intersect(u32, self.p1[0], self.p2[0], other.p1[0], other.p2[0]) and line_intersect(u32, self.p1[1], self.p2[1], other.p1[1], other.p2[1]);
+    pub fn intersect(self: Stone, other: Stone, area: [2]f64) bool {
+        var t_f = solve2x2(@floatFromInt(self.speed[0]), @floatFromInt(-other.speed[0]), @floatFromInt(self.speed[1]), @floatFromInt(-other.speed[1]), @floatFromInt(other.pos[0] - self.pos[0]), @floatFromInt(other.pos[1] - self.pos[1]));
+        //std.debug.print("Stone {any} and {any} intersect on {any}\n", .{ self.speed, other.speed, t_f });
+        if (t_f == null) {
+            return false;
+        }
+        var t = t_f.?;
+        if (t[0] >= 0 and t[1] >= 0) {
+            var insideArea = true;
+            var pos_intersect: [2]f64 = undefined;
+            for (0..2) |ix| {
+                pos_intersect[ix] = t[0] * @as(f64, @floatFromInt(self.speed[ix])) + @as(f64, @floatFromInt(self.pos[ix]));
+                insideArea = insideArea and (pos_intersect[ix] >= area[0] and pos_intersect[ix] <= area[1]);
+            }
+            return insideArea;
+        }
+        return false;
     }
 };
 
@@ -69,7 +78,7 @@ fn parse_stone(
     }
 }
 
-fn solve(data: anytype) !void {
+fn solve(data: anytype, example: bool) !void {
     var arena_state = std.heap.ArenaAllocator.init(std.heap.c_allocator);
     defer arena_state.deinit();
     const allocator = arena_state.allocator();
@@ -83,6 +92,17 @@ fn solve(data: anytype) !void {
     }
 
     std.debug.print("{} stones found \n", .{stones.items.len});
+
+    var search_area = if (example) [2]f64{ 7, 27 } else [2]f64{ 200000000000000, 400000000000000 };
+    var part1: i32 = 0;
+    for (stones.items, 1..) |stone, ix| {
+        for (stones.items[ix..]) |other| {
+            if (stone.intersect(other, search_area)) {
+                part1 += 1;
+            }
+        }
+    }
+    std.debug.print("Part 1 = {} \n", .{part1});
 }
 
 pub fn main() !void {
@@ -95,5 +115,5 @@ pub fn main() !void {
         }
     }
 
-    try solve(if (example) fileDataEx else fileData);
+    try solve(if (example) fileDataEx else fileData, example);
 }
