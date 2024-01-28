@@ -62,17 +62,8 @@ Zig
 -day18 (contour area computing for segments) ✅
 -day19 (xmas intervals chain) ✅
 -day20 (signals) ✅
--day21 (reachable tiles, repetition pattern) ⏸️
+-day21 (reachable tiles, repetition pattern) ✅ ⏸️
 -day22 (cubes pile) ✅
 -day23 (longest trail, graph reduction) ✅
--day24 (line intersection, matrix equation solving) ✅⏸️
+-day24 (line intersection, matrix equation solving) ✅ ⏸️
 -day25 (cut a graph, networkx) ✅ ⏸️
-
-Current status: 21/25
-Won't do: 2
-Corrected status: 21/23, 2 left
-
-All parts:
-Current status: 41/49
-Won't do: 6
-Current status: 41/43, 2 left
