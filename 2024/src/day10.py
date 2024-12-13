@@ -40,9 +40,9 @@ def main():
     day = int(re.findall(r"\d+", filename)[0])
 
     if args.test:
-        filename = f"test{day}.txt"
+        filename = f"../data/test{day}.txt"
     else:
-        filename = f"input{day}.txt"
+        filename = f"../data/input{day}.txt"
 
     with open(f"{filename}", "r") as f:
         raw_data = f.read()
