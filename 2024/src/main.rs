@@ -4,6 +4,8 @@ pub use log::{debug, error, info, trace, warn};
 use std::env;
 mod day1;
 mod day2;
+mod day3;
+mod day6;
 /* mod day10;
 mod day11;
 mod day12;
@@ -21,7 +23,7 @@ mod day22;
 mod day23;
 mod day24;
 mod day25;
-mod day3;
+
 mod day4;
 mod day5;
 mod day6;
@@ -52,17 +54,17 @@ fn main() {
     debug!(
         "Reading day {} from {}, test mode: {}",
         day,
-        &get_path(test_mode, 1),
+        &get_path(test_mode, day.as_str().parse::<i32>().unwrap()),
         test_mode
     );
 
     match day.as_str() {
         "1" => day1::run(&get_path(test_mode, 1)),
         "2" => day2::run(&get_path(test_mode, 2)),
-        //        "3" => day3::run(&get_path(test_mode, 3)),
+        "3" => day3::run(&get_path(test_mode, 3)),
         // "4" => day4::run(),
         // "5" => day5::run(&get_path(test_mode, 5)),
-        // "6" => day6::run(&get_path(test_mode, 6)),
+        "6" => day6::run(&get_path(test_mode, 6)),
         // "7" => day7::run(&get_path(test_mode, 7)),
         // "8" => day8::run(&get_path(test_mode, 8)),
         // "9" => day9::run(&get_path(test_mode, 9)),
