@@ -27,7 +27,7 @@ By default, log level is info
 - Day 16: Find lowest score path in labyrinth
 - Day 17: Implement ascembler like instructions (with some cout), then find input to get certain output
 - Day 18: Find shortest path in map with N obstacles, increase N until no path can be found
-- Day 19:
+- Day 19: Form word with substring, compute how many different possibilities are possible
 - Day 20:
 - Day 21:
 - Day 22:
