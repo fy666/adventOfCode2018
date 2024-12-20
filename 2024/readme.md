@@ -28,7 +28,7 @@ By default, log level is info
 - Day 17: Implement ascembler like instructions (with some cout), then find input to get certain output
 - Day 18: Find shortest path in map with N obstacles, increase N until no path can be found
 - Day 19: Form word with substring, compute how many different possibilities are possible
-- Day 20:
+- Day 20: Found best path between two points in a map but can cheat through walls for X seconds, list saved timed > at 100
 - Day 21:
 - Day 22:
 - Day 23:
