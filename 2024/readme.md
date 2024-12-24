@@ -32,5 +32,5 @@ By default, log level is info
 - Day 21:
 - Day 22: Generate number sequences, find common sequence with maximum gain
 - Day 23: Connected graph
-- Day 24:
+- Day 24: Connected wires (logical gate) that should create addition
 - Day 25:
