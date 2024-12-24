@@ -30,7 +30,7 @@ By default, log level is info
 - Day 19: Form word with substring, compute how many different possibilities are possible
 - Day 20: Found best path between two points in a map but can cheat through walls for X seconds, list saved timed > at 100
 - Day 21:
-- Day 22:
-- Day 23:
+- Day 22: Generate number sequences, find common sequence with maximum gain
+- Day 23: Connected graph
 - Day 24:
 - Day 25:
