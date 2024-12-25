@@ -29,8 +29,8 @@ By default, log level is info
 - Day 18: Find shortest path in map with N obstacles, increase N until no path can be found
 - Day 19: Form word with substring, compute how many different possibilities are possible
 - Day 20: Found best path between two points in a map but can cheat through walls for X seconds, list saved timed > at 100
-- Day 21:
+- Day 21: robot hand controlled with buttons pushed by another robot, etc
 - Day 22: Generate number sequences, find common sequence with maximum gain
 - Day 23: Connected graph
 - Day 24: Connected wires (logical gate) that should create addition
-- Day 25:
+- Day 25: Found matching keys and locks (interlocking columns)
