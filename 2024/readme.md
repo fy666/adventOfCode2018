@@ -23,7 +23,7 @@ By default, log level is info
 - Day 12: Find area, perimeter and side of shapes in a map
 - Day 13: Game machine with 2 buttons, need to find exact match to reach trophee position
 - Day 14: Find position of moving robots on a grid, find when they form a christmas tree
-- Day 15:
+- Day 15: Robot walking in warehouse pushing boxes and stoping for obstacles
 - Day 16: Find lowest score path in labyrinth
 - Day 17: Implement ascembler like instructions (with some cout), then find input to get certain output
 - Day 18: Find shortest path in map with N obstacles, increase N until no path can be found
